@@ -25,23 +25,26 @@ export function AppSidebar({
 }: {
   user: { role: string } & React.ComponentProps<typeof Sidebar>;
 }) {
+
+  
   let routes: Route[] = [];
 
   switch (user.role) {
-    case "admin":
+    case "ADMIN":
       routes = adminRoutes;
       break;
-    case "student":
+    case "STUDENT":
       routes = studentRoutes;
       break;
-    case "tutor":
-      routes = tutorRoutes; 
+    case "TUTOR":
+      routes = tutorRoutes;
       break;
     default:
       routes = [];
       break;
   }
 
+  
   return (
     <Sidebar {...props}>
       <SidebarContent>

@@ -1,129 +1,209 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
+import { z } from "zod";
 import {
-  Eye, EyeOff, User, Phone, Mail, Camera,
-  GraduationCap, Home, Lock, ArrowRight
+  Eye,
+  EyeOff,
+  User,
+  Phone,
+  Mail,
+  GraduationCap,
+  Home,
+  Lock,
+  ArrowRight,
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+
+// Zod schema
+const registerSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    phone: z.string().min(1, "Phone is required"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(1, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function RegisterPage() {
-  const [role, setRole] = useState("STUDENT");
+  const [role, setRole] = useState<"STUDENT" | "TUTOR">("STUDENT");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPass, setShowPass] = useState(false);
   const [showRePass, setShowRePass] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+  // handle change
+  const handleChange = (k: string, v: string) => {
+    setForm((s) => ({ ...s, [k]: v }));
+    setErrors((e) => ({ ...e, [k]: "" }));
+  };
+
+  // validate with Zod
+  const validate = (): boolean => {
+    const result = registerSchema.safeParse(form);
+
+    if (!result.success) {
+      const e: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const key = issue.path[0] as string;
+        if (key) e[key] = issue.message;
+      });
+      setErrors(e);
+      return false;
     }
+
+    setErrors({});
+    return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Form submitted! Add real validation logic here.");
+    if (!validate()) return;
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await authClient.signUp.email({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role ,
+        phone: form.phone,
+      });
+
+      if (error) {
+        console.log(error);
+        toast.error(`Signup failed: ${error.message}`);
+      } else {
+        console.log("Signup success:", data);
+        toast.success("Account created successfully!");
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("Something went wrong. Check your network!");
+    }
+
+    setLoading(false);
   };
+
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] flex items-center justify-center py-8 px-4 transition-colors duration-500">
-      <div className="max-w-lg w-full bg-white dark:bg-slate-900 rounded-[40px] shadow-2xl shadow-blue-500/5 dark:shadow-none border border-slate-100 dark:border-slate-800/50 p-8 md:p-10 text-center relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-[#02061a] p-6 transition-colors">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
-        {/* --- Home Button Inside Form --- */}
-        <Link href="/" className="absolute top-4 left-4 flex items-center gap-2 bg-white dark:bg-slate-900 p-2.5 rounded-2xl shadow-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 transition-all border border-slate-200 dark:border-slate-800 group text-[12px] font-bold tracking-wider">
-          <Home size={16} className="group-hover:-translate-y-0.5 transition-transform" />
-          HOME
-        </Link>
-
-        {/* Header */}
-        <div className="mb-6">
-          <div className="w-14 h-14 bg-blue-600 dark:bg-blue-500 rounded-2xl mx-auto mb-3 flex items-center justify-center shadow-xl shadow-blue-500/20 transform -rotate-6 transition-transform">
-            <User className="text-white" size={28} />
+        {/* LEFT - hero */}
+        <div className="relative p-8 md:p-10 bg-[linear-gradient(180deg,#0ea5e9,transparent)] dark:bg-[linear-gradient(180deg,#0ea5ff11,transparent)]">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white">
+              <Home size={18} /> Home
+            </Link>
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-            Join <span className="text-blue-600">Us</span>
-          </h2>
-          <p className="text-[11px] mt-1.5 font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase">
-            Create your profile in seconds
-          </p>
-        </div>
-
-        {/* Role Selection */}
-        <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-2xl mb-6">
-          {["STUDENT", "TUTOR"].map((item) => (
-            <button
-              key={item}
-              onClick={() => setRole(item)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 ${role === item
-                ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-            >
-              {item === "STUDENT" ? <User size={14} /> : <GraduationCap size={14} />}
-              {item}
-            </button>
-          ))}
-        </div>
-
-        {/* Form */}
-        <form className="space-y-3" onSubmit={handleSubmit}>
-          {/* Avatar Upload */}
-          <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="w-full h-full rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden">
-              {image ? <img src={image} className="w-full h-full object-cover" /> : <User className="text-slate-300 dark:text-slate-600" size={24} />}
+          <div className="mt-8">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 dark:bg-white/10 flex items-center justify-center shadow-lg -rotate-6">
+              <User className="text-white" size={28} />
             </div>
-            <label className="absolute -bottom-1 -right-1 bg-blue-600 dark:bg-blue-500 p-1.5 rounded-lg text-white cursor-pointer hover:scale-110 transition-transform shadow-lg border-2 border-white dark:border-slate-900">
-              <Camera size={12} />
-              <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
-            </label>
-          </div>
-
-          {/* Inputs */}
-          {[
-            { label: "NAME", icon: User, placeholder: "John Doe", type: "text" },
-            { label: "PHONE", icon: Phone, placeholder: "+880...", type: "tel" },
-            { label: "EMAIL", icon: Mail, placeholder: "hello@example.com", type: "email" }
-          ].map((field) => (
-            <div key={field.label} className="relative group">
-              <field.icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
-              <input
-                type={field.type}
-                placeholder={field.placeholder}
-                className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 pl-11 pr-3 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-white text-xs font-medium"
-                required
-              />
-            </div>
-          ))}
-
-          {/* Password Fields */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
-              <input type={showPass ? "text" : "password"} placeholder="Password" className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 pl-11 pr-3 outline-none focus:border-blue-500 dark:text-white text-xs" required />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
-              <input type={showRePass ? "text" : "password"} placeholder="Confirm" className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl py-3 pl-11 pr-3 outline-none focus:border-blue-500 dark:text-white text-xs" required />
-              <button type="button" onClick={() => setShowRePass(!showRePass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                {showRePass ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] mt-4 text-xs tracking-widest flex items-center justify-center gap-2">
-            GET STARTED
-            <ArrowRight size={16} />
-          </button>
-
-          {/* Footer */}
-          <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Already a member? <Link href="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline ml-1">Log In</Link>
+            <h3 className="mt-6 text-2xl font-extrabold text-slate-900 dark:text-white">SkillBridge</h3>
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+              Connect with expert tutors. Create your profile and start teaching or learning.
             </p>
+
+            <div className="mt-6 space-y-2">
+              <div className="text-xs text-slate-600 dark:text-slate-400">Roles</div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRole("STUDENT")}
+                  className={`flex-1 py-2 rounded-xl text-sm font-semibold transition ${role === "STUDENT" ? "bg-white dark:bg-slate-800 text-blue-600 shadow-md" : "bg-white/60 dark:bg-slate-800/30 text-slate-700 dark:text-slate-300"}`}
+                >
+                  <div className="flex items-center justify-center gap-2"><User size={14} /> Student</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole("TUTOR")}
+                  className={`flex-1 py-2 rounded-xl text-sm font-semibold transition ${role === "TUTOR" ? "bg-white dark:bg-slate-800 text-blue-600 shadow-md" : "bg-white/60 dark:bg-slate-800/30 text-slate-700 dark:text-slate-300"}`}
+                >
+                  <div className="flex items-center justify-center gap-2"><GraduationCap size={14} /> Tutor</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 text-sm text-slate-700 dark:text-slate-300">
+              <div className="mb-2 font-semibold">Why join?</div>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Fast onboarding</li>
+                <li>Profile + availability management</li>
+                <li>Built for students & tutors</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 text-xs text-slate-500 dark:text-slate-400">
+              Already a member? <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold">Log in</Link>
+            </div>
           </div>
-        </form>
+        </div>
+
+        {/* RIGHT - form */}
+        <div className="p-8 md:p-10">
+          <h4 className="text-lg font-bold text-slate-900 dark:text-white">Create account</h4>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">It takes a few seconds — be ready to teach or learn.</p>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {["name", "phone", "email", "password", "confirmPassword"].map((f) => {
+              const isPass = f === "password";
+              const isConfirm = f === "confirmPassword";
+              const show = isPass ? showPass : isConfirm ? showRePass : false;
+              const toggle = isPass ? () => setShowPass((s) => !s) : isConfirm ? () => setShowRePass((s) => !s) : undefined;
+              const placeholder = f === "confirmPassword" ? "Confirm password" : f.charAt(0).toUpperCase() + f.slice(1);
+              const icon = f === "name" ? <User size={16} /> : f === "phone" ? <Phone size={16} /> : <Mail size={16} />;
+              return (
+                <div key={f}>
+                  <div className="relative">
+                    {React.cloneElement(icon, { className: "absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" })}
+                    <input
+                      name={f}
+                      type={isPass || isConfirm ? (show ? "text" : "password") : "text"}
+                      value={form[f as keyof typeof form]}
+                      onChange={(e) => handleChange(f, e.target.value)}
+                      placeholder={placeholder}
+                      className={`w-full rounded-xl py-3 pl-11 pr-10 text-sm border ${errors[f] ? "border-red-400" : "border-slate-200 dark:border-slate-800"} bg-transparent outline-none focus:ring-2 focus:ring-blue-300`}
+                    />
+                    {(isPass || isConfirm) && toggle && (
+                      <button type="button" onClick={toggle} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+                        {show ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    )}
+                  </div>
+                  {errors[f] && <div className="text-xs text-red-500 mt-1">{errors[f]}</div>}
+                </div>
+              )
+            })}
+
+            <div className="pt-2">
+              <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition shadow-md">
+                {loading ? "Processing..." : "Get Started"} <ArrowRight size={16} />
+              </button>
+            </div>
+
+            <div className="text-center text-xs text-slate-500 dark:text-slate-400 mt-2">
+              By creating an account you agree to our <span className="font-semibold text-slate-700 dark:text-slate-200">terms</span>.
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>
   );

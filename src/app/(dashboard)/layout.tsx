@@ -9,18 +9,24 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Role } from "../constants/role";
 
 export default function DashboardLayout({
   admin,
-  Student,
-  Tutor,
+  student,
+  tutor,
 }: {
   admin: React.ReactNode;
-  Student: React.ReactNode;
-  Tutor: React.ReactNode;
+  student: React.ReactNode;
+  tutor: React.ReactNode;
 }) {
 
-  const userInfo = { role: "student" };
+ 
+
+  
+  const userInfo = { role: Role.admin };
+
+  
 
   return (
     <SidebarProvider>
@@ -43,9 +49,9 @@ export default function DashboardLayout({
         </header>
 
         <div className="flex-1 flex flex-col gap-4 p-4">
-          {userInfo.role === "admin" && admin}
-          {userInfo.role === "student" && Student}
-          {userInfo.role === "tutor" && Tutor}
+          {userInfo.role === Role.admin && admin}
+          {userInfo.role === Role.student && student}
+          {userInfo.role === Role.tutor && tutor}
         </div>
       </SidebarInset>
     </SidebarProvider>

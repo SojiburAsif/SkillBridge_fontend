@@ -6,7 +6,7 @@ import AboutSection from "@/components/layout/Session";
 
 export default async function Home() {
 
-  const res = await fetch("")
+  
 
   return (
     <div className="">
