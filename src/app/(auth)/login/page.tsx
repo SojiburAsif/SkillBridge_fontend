@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // 🚀 useRouter import
 import { useForm } from "@tanstack/react-form";
 import {
   Eye,
@@ -17,6 +18,7 @@ import { authClient } from "@/lib/auth-client";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -35,6 +37,9 @@ export default function LoginForm() {
         }
 
         toast.success("User Logged in Successfully", { id: toastId });
+
+        // ✅ redirect to home page
+        router.push("/");
       } catch (err) {
         toast.error("Something went wrong, please try again.", { id: toastId });
       }
@@ -139,6 +144,7 @@ export default function LoginForm() {
             <ChevronRight />
           </button>
 
+          {/* Register Link */}
           <div className="text-center">
             <Link href="/register" className="text-blue-600 font-semibold">
               Create an account

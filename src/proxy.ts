@@ -17,7 +17,7 @@ export async function proxy(request: NextRequest) {
         role = data.user.role;
     }
 
-    console.log("Session:", data);
+    // console.log("Session:", data);
 
 
     if (!isAuthenticated) {

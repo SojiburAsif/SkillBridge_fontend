@@ -4,9 +4,10 @@ export const tutorRoutes: Route[] = [
     {
         title: "Dashboard",
         items: [
-            { title: "Sessions", url: "/tutor/dashboard" },
-            { title: "Availability", url: "/tutor/availability" },
-            { title: "Profile", url: "/tutor/profile" },
+            { title: "CreateProfile", url: "/tutor-dashboard/CreateProfile" },
+            { title: "My Booking", url: "/tutor-dashboard/MyBooking" },
+            { title: "Profile", url: "/tutor-dashboard/profile" },
+            { title: "Edit Profile", url: "/tutor-dashboard/Edit" },
         ],
     },
     {

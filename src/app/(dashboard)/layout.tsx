@@ -10,8 +10,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Role } from "../constants/role";
+import { getSession } from "better-auth/api";
+import { userService } from "@/services/user.service";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   admin,
   student,
   tutor,
@@ -21,16 +23,18 @@ export default function DashboardLayout({
   tutor: React.ReactNode;
 }) {
 
- 
+  const { data } = await userService.getSession();
 
-  
-  const userInfo = { role: Role.admin };
+  // console.log("Hello session", data);
 
-  
+  const userRole = data?.user?.role;
+
+  // console.log(userRole);
+
 
   return (
     <SidebarProvider>
-      <AppSidebar user={userInfo} />
+      <AppSidebar user={{ role: userRole }} />
       <SidebarInset>
         <header className="flex h-16 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
@@ -42,18 +46,19 @@ export default function DashboardLayout({
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>{userInfo.role}</BreadcrumbPage>
+                <BreadcrumbPage>{userRole}</BreadcrumbPage> {/* just use string */}
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </header>
 
         <div className="flex-1 flex flex-col gap-4 p-4">
-          {userInfo.role === Role.admin && admin}
-          {userInfo.role === Role.student && student}
-          {userInfo.role === Role.tutor && tutor}
+          {userRole === Role.admin && admin}
+          {userRole === Role.student && student}
+          {userRole === Role.tutor && tutor}
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
+
 }

@@ -2,20 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // ✅ navigation
 import { z } from "zod";
-import {
-  Eye,
-  EyeOff,
-  User,
-  Phone,
-  Mail,
-  GraduationCap,
-  Home,
-  Lock,
-  ArrowRight,
-} from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { Eye, EyeOff, User, Phone, Mail, GraduationCap, Home, Lock, ArrowRight } from "lucide-react";
+import type { UserRole, RegisterForm } from "@/types/user"; // ✅ import type
 
 // Zod schema
 const registerSchema = z
@@ -32,26 +24,27 @@ const registerSchema = z
   });
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<"STUDENT" | "TUTOR">("STUDENT");
-  const [form, setForm] = useState({
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [form, setForm] = useState<RegisterForm>({
     name: "",
     phone: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPass, setShowPass] = useState(false);
   const [showRePass, setShowRePass] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // handle change
-  const handleChange = (k: string, v: string) => {
+  const router = useRouter();
+
+  const handleChange = (k: keyof RegisterForm, v: string) => {
     setForm((s) => ({ ...s, [k]: v }));
     setErrors((e) => ({ ...e, [k]: "" }));
   };
 
-  // validate with Zod
   const validate = (): boolean => {
     const result = registerSchema.safeParse(form);
 
@@ -69,7 +62,6 @@ export default function RegisterPage() {
     return true;
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -81,37 +73,33 @@ export default function RegisterPage() {
         name: form.name,
         email: form.email,
         password: form.password,
-        role ,
+        role,
         phone: form.phone,
       });
 
       if (error) {
-        console.log(error);
         toast.error(`Signup failed: ${error.message}`);
       } else {
-        console.log("Signup success:", data);
         toast.success("Account created successfully!");
+        router.push("/"); 
       }
     } catch (err) {
-      console.error("Unexpected error:", err);
+      console.error(err);
       toast.error("Something went wrong. Check your network!");
     }
 
     setLoading(false);
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-[#02061a] p-6 transition-colors">
       <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
-        {/* LEFT - hero */}
+        {/* LEFT - Hero */}
         <div className="relative p-8 md:p-10 bg-[linear-gradient(180deg,#0ea5e9,transparent)] dark:bg-[linear-gradient(180deg,#0ea5ff11,transparent)]">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white">
-              <Home size={18} /> Home
-            </Link>
-          </div>
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white">
+            <Home size={18} /> Home
+          </Link>
           <div className="mt-8">
             <div className="w-16 h-16 rounded-2xl bg-white/20 dark:bg-white/10 flex items-center justify-center shadow-lg -rotate-6">
               <User className="text-white" size={28} />
@@ -121,6 +109,7 @@ export default function RegisterPage() {
               Connect with expert tutors. Create your profile and start teaching or learning.
             </p>
 
+            {/* Role selection */}
             <div className="mt-6 space-y-2">
               <div className="text-xs text-slate-600 dark:text-slate-400">Roles</div>
               <div className="flex gap-2">
@@ -140,27 +129,12 @@ export default function RegisterPage() {
                 </button>
               </div>
             </div>
-
-            <div className="mt-8 text-sm text-slate-700 dark:text-slate-300">
-              <div className="mb-2 font-semibold">Why join?</div>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Fast onboarding</li>
-                <li>Profile + availability management</li>
-                <li>Built for students & tutors</li>
-              </ul>
-            </div>
-
-            <div className="mt-6 text-xs text-slate-500 dark:text-slate-400">
-              Already a member? <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold">Log in</Link>
-            </div>
           </div>
         </div>
 
-        {/* RIGHT - form */}
+        {/* RIGHT - Form */}
         <div className="p-8 md:p-10">
           <h4 className="text-lg font-bold text-slate-900 dark:text-white">Create account</h4>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">It takes a few seconds — be ready to teach or learn.</p>
-
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {["name", "phone", "email", "password", "confirmPassword"].map((f) => {
               const isPass = f === "password";
@@ -177,7 +151,7 @@ export default function RegisterPage() {
                       name={f}
                       type={isPass || isConfirm ? (show ? "text" : "password") : "text"}
                       value={form[f as keyof typeof form]}
-                      onChange={(e) => handleChange(f, e.target.value)}
+                      onChange={(e) => handleChange(f as keyof RegisterForm, e.target.value)}
                       placeholder={placeholder}
                       className={`w-full rounded-xl py-3 pl-11 pr-10 text-sm border ${errors[f] ? "border-red-400" : "border-slate-200 dark:border-slate-800"} bg-transparent outline-none focus:ring-2 focus:ring-blue-300`}
                     />
@@ -192,11 +166,9 @@ export default function RegisterPage() {
               )
             })}
 
-            <div className="pt-2">
-              <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition shadow-md">
-                {loading ? "Processing..." : "Get Started"} <ArrowRight size={16} />
-              </button>
-            </div>
+            <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition shadow-md">
+              {loading ? "Processing..." : "Get Started"} <ArrowRight size={16} />
+            </button>
 
             <div className="text-center text-xs text-slate-500 dark:text-slate-400 mt-2">
               By creating an account you agree to our <span className="font-semibold text-slate-700 dark:text-slate-200">terms</span>.

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
+import { userService } from "@/services/user.service";
 
 interface MenuItem {
   title: string;
@@ -37,11 +38,16 @@ interface NavbarProps {
   };
 }
 
+
+// console.log("nav data", data);
 const Navbar = ({
+
+
+
   logo = { url: "/", title: "RentRide" },
   menu = [
     { title: "Home", url: "/" },
-    { title: "Vehicle", url: "/vehicle" },
+    { title: "Browse Tutors", url: "/TutoreProfile" },
     { title: "About", url: "/about" },
     { title: "Dashboard", url: "/student-dashboard" },
     { title: "Contact", url: "/contact" },
