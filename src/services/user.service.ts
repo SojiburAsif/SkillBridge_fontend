@@ -8,7 +8,9 @@ export const userService = {
         try {
             const cookieStore = await cookies();
 
-        
+            // console.log("hiiiiiiiiiiiiiiiiiiiii",cookieStore);
+
+
             const res = await fetch(`${AUTH_URL}/get-session`, {
                 headers: {
                     Cookie: cookieStore.toString(),

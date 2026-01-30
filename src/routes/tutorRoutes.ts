@@ -7,13 +7,13 @@ export const tutorRoutes: Route[] = [
             { title: "CreateProfile", url: "/tutor-dashboard/CreateProfile" },
             { title: "My Booking", url: "/tutor-dashboard/MyBooking" },
             { title: "Profile", url: "/tutor-dashboard/profile" },
-            { title: "Edit Profile", url: "/tutor-dashboard/Edit" },
+            // { title: "Edit Profile", url: "/tutor-dashboard/Edit" },
         ],
     },
     {
         title: "Ratings & Reviews",
         items: [
-            { title: "View Reviews", url: "/tutor/reviews" },
+            { title: "View Reviews", url: "/tutor-dashboard/reviews" },
         ],
     },
 ];

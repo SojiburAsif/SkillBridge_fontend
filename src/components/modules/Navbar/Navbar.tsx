@@ -17,16 +17,29 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
-import { ModeToggle } from "./ModeToggle";
-import { userService } from "@/services/user.service";
+import { ModeToggle } from "@/components/layout/ModeToggle";
+
+
+/* ================= TYPES ================= */
 
 interface MenuItem {
   title: string;
   url: string;
 }
 
+interface SessionUser {
+  name?: string;
+  email?: string;
+  role?: string;
+}
+
+interface Session {
+  user?: SessionUser;
+}
+
 interface NavbarProps {
   className?: string;
+  session?: Session | null;
   logo?: {
     url: string;
     title: string;
@@ -38,12 +51,10 @@ interface NavbarProps {
   };
 }
 
+/* ================= COMPONENT ================= */
 
-// console.log("nav data", data);
 const Navbar = ({
-
-
-
+  session,
   logo = { url: "/", title: "RentRide" },
   menu = [
     { title: "Home", url: "/" },
@@ -58,6 +69,11 @@ const Navbar = ({
   },
   className,
 }: NavbarProps) => {
+  const isLoggedIn = Boolean(session?.user);
+
+
+  console.log("chack", session);
+
   return (
     <header
       className={cn(
@@ -66,7 +82,7 @@ const Navbar = ({
       )}
     >
       <div className="container mx-auto px-4 lg:px-6">
-        {/* Desktop Menu */}
+        {/* ================= DESKTOP ================= */}
         <nav className="hidden lg:flex items-center justify-between h-20">
           <div className="flex items-center gap-10">
             {/* Logo */}
@@ -77,16 +93,18 @@ const Navbar = ({
               {logo.title}
             </Link>
 
+            {/* Menu */}
             <NavigationMenu>
               <NavigationMenuList className="flex gap-6">
                 {menu.map((item) => (
                   <NavigationMenuItem key={item.title}>
-                    <NavigationMenuLink
-                      asChild
-                      href={item.url}
-                      className="px-4 py-2 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
-                    >
-                      <Link href={item.url}>{item.title}</Link>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={item.url}
+                        className="px-4 py-2 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
+                      >
+                        {item.title}
+                      </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
@@ -94,26 +112,46 @@ const Navbar = ({
             </NavigationMenu>
           </div>
 
-          {/* Auth + Toggle */}
+          {/* Auth Area */}
           <div className="flex items-center gap-4">
             <ModeToggle />
-            <Button
-              asChild
-              variant="outline"
-              className="px-6 font-semibold py-5 hover:bg-blue-600 hover:text-white transition-all"
-            >
-              <Link href={auth.login.url}>{auth.login.title}</Link>
-            </Button>
-            <Button
-              asChild
-              className="px-6 py-5 font-semibold hover:bg-blue-600 hover:text-white transition-all"
-            >
-              <Link href={auth.signup.url}>{auth.signup.title}</Link>
-            </Button>
+
+            {isLoggedIn ? (
+              <>
+                <span className="text-sm font-semibold">
+                  {session?.user?.name ?? "User"}
+                </span>
+
+                <Button
+                  asChild
+                  variant="destructive"
+                  className="px-6 py-5 font-semibold"
+                >
+                  <Link href="/logout">Logout</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="px-6 py-5 font-semibold"
+                >
+                  <Link href={auth.login.url}>{auth.login.title}</Link>
+                </Button>
+
+                <Button
+                  asChild
+                  className="px-6 py-5 font-semibold"
+                >
+                  <Link href={auth.signup.url}>{auth.signup.title}</Link>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* ================= MOBILE ================= */}
         <div className="flex lg:hidden items-center justify-between h-16">
           <Link
             href={logo.url}
@@ -121,43 +159,57 @@ const Navbar = ({
           >
             {logo.title}
           </Link>
+
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
                 <Menu size={20} />
               </Button>
             </SheetTrigger>
+
             <SheetContent className="bg-white dark:bg-black p-6">
               <SheetHeader>
-                <SheetTitle className="text-xl font-bold">{logo.title}</SheetTitle>
+                <SheetTitle className="text-xl font-bold">
+                  {logo.title}
+                </SheetTitle>
               </SheetHeader>
+
               <div className="flex flex-col gap-4 mt-4">
                 {menu.map((item) => (
                   <Link
                     key={item.title}
                     href={item.url}
-                    className="text-md font-semibold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-500 transition-colors pl-2"
+                    className="text-md font-semibold hover:text-blue-600 transition-colors"
                   >
                     {item.title}
                   </Link>
                 ))}
+
                 <div className="flex flex-col gap-4 mt-6">
                   <ModeToggle />
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="default"
-                    className="px-6 py-3 font-semibold hover:bg-blue-600 hover:text-white transition-all"
-                  >
-                    <Link href={auth.login.url}>{auth.login.title}</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="default"
-                    className="px-6 py-3 font-semibold hover:bg-blue-600 hover:text-white transition-all"
-                  >
-                    <Link href={auth.signup.url}>{auth.signup.title}</Link>
-                  </Button>
+
+                  {isLoggedIn ? (
+                    <>
+                      <span className="font-semibold">
+                        {session?.user?.name}
+                      </span>
+                      <Link
+                        href="/logout"
+                        className="font-semibold text-red-500"
+                      >
+                        Logout
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href={auth.login.url}>
+                        {auth.login.title}
+                      </Link>
+                      <Link href={auth.signup.url}>
+                        {auth.signup.title}
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

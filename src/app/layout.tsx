@@ -34,9 +34,9 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-  
+
           {children}
-          <Toaster />
+          <Toaster position="top-right" />
         </ThemeProvider>
       </body>
     </html>

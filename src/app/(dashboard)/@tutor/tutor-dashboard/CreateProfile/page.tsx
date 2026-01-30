@@ -1,7 +1,9 @@
+
+import { CreateProfileFormClient } from '@/components/modules/TutoreServer/CreateProfileFormClient'
 import React from 'react'
 
 export default function CreateProfile() {
   return (
-    <div>CreateProfile</div>
+    <div><CreateProfileFormClient></CreateProfileFormClient></div>
   )
 }

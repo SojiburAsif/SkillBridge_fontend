@@ -1,11 +1,11 @@
 import FooterPage from '@/components/layout/Fooder'
-import { Navbar } from '@/components/layout/Navbar'
+import NavbarServer from '@/components/modules/Navbar/NavbarServer'
 import React, { ReactNode } from 'react'
 
 export default function CommonLayout({ children }: { children: ReactNode }) {
     return (
         <div>
-            <Navbar></Navbar>
+            <NavbarServer></NavbarServer>
             {children}
             <FooterPage></FooterPage>
         </div>
