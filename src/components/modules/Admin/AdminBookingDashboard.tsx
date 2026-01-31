@@ -100,6 +100,7 @@ export default function AdminBookingDashboard({ bookings: initialBookings }: Pro
             
                                             <SelectItem value="CONFIRMED">CONFIRMED</SelectItem>
                                             <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                                            <SelectItem value="COMPLETED">COMPLETED</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </TableCell>

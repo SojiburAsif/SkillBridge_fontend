@@ -72,7 +72,7 @@ const Navbar = ({
   const isLoggedIn = Boolean(session?.user);
 
 
-  console.log("chack", session);
+  // console.log("chack", session);
 
   return (
     <header

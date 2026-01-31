@@ -4,7 +4,7 @@ export const adminRoutes: Route[] = [
   {
     title: "Dashboard",
     items: [
-      { title: "Statistics", url: "/admin-dashboard/" },
+      { title: "Statistics", url: "/admin-dashboard/Statistics" },
     ],
   },
   {
