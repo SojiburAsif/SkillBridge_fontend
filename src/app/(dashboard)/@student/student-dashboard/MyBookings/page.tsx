@@ -1,4 +1,5 @@
-import MyBookings from "@/components/modules/Booking/StudentMyBooking";
+
+import MyBookingsCard from "@/components/modules/Booking/StudentMyBooking";
 import React from "react";
 
 export default function MyBookingPage() {
@@ -13,7 +14,7 @@ export default function MyBookingPage() {
             Manage your scheduled sessions and tutor interactions.
           </p>
         </div>
-        <MyBookings />
+        <MyBookingsCard />
       </div>
     </div>
   );

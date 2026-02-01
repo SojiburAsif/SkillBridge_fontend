@@ -5,12 +5,16 @@ export default async function TutorBookingsPage() {
   const bookings = await getTutorBookings();
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-black p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-          My Students&apos; Bookings
-        </h1>
-        <TutorBookingsCard bookings={bookings} />
+    <div className="min-h-screen bg-[#fcfcfd] dark:bg-black p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900 dark:text-white">
+            Appointments
+          </h1>
+          <p className="text-sm text-slate-500 font-medium">Manage your student sessions and schedule.</p>
+        </div>
+
+        <TutorBookingsCard bookings={bookings as never} />
       </div>
     </div>
   );

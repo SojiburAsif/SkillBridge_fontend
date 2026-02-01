@@ -2,14 +2,33 @@
 
 import { env } from "@/env";
 import { cookies } from "next/headers";
+import { Slot } from "./tutorSlot.service";
+
+const API_URL = env.NEXT_PUBLIC_API_URL || env.API_URL;
+
+export type BookingStatus = "CONFIRMED" | "CANCELLED" | "PENDING" | "COMPLETED";
 
 export type Booking = {
     id: string;
-    dateTime: string;
-    status: string;
-    createdAt: string;
-    studentId: string;
-    tutorId: string;
+    dateTime: string; 
+    status: BookingStatus;
+    createdAt?: string;
+    studentId?: string;
+    tutorId?: string;
+    slotId?: string | null;
+    slot?: {
+        id: string;
+        date: string;
+        startTime: string;
+        endTime: string;
+    } | null;
+    student?: {
+        id: string;
+        name: string;
+        email: string;
+        image?: string;
+        phone?: string;
+    };
     tutor?: {
         id: string;
         name: string;
@@ -18,176 +37,17 @@ export type Booking = {
     };
 };
 
-// Use the correct API URL
-const API_URL = env.NEXT_PUBLIC_API_URL || env.API_URL;
-
-// Fetch all bookings
-export async function getAllBookings(): Promise<Booking[]> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
-
-    if (!sessionToken) {
-        console.error("No session token found");
-        return [];
-    }
-
-    try {
-        const res = await fetch(`${API_URL}/api/all/bookings`, {
-            headers: {
-                Cookie: `better-auth.session_token=${sessionToken}`,
-            },
-            cache: "no-store",
-        });
-
-        // Handle non-JSON response (HTML error page, 404, 500)
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("Booking API returned error:", res.status, text);
-            return [];
-        }
-
-        const data = await res.json();
-
-        // Support multiple possible response formats
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data.bookings)) return data.bookings;
-        if (Array.isArray(data.data)) return data.data;
-
-        console.log("Booking API response:", data);
-        return [];
-    } catch (error) {
-        console.error("Error fetching bookings:", error);
-        return [];
-    }
+async function getAuthToken() {
+    const cookieStore = await cookies();
+    return cookieStore.get("better-auth.session_token")?.value;
 }
 
-// Update booking status
-export async function updateBookingStatus(
-    bookingId: string,
-    status: string
-): Promise<Booking | null> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
 
-    if (!sessionToken) {
-        console.error("No session token found");
-        return null;
-    }
 
-    try {
-        const res = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Cookie: `better-auth.session_token=${sessionToken}`,
-            },
-            body: JSON.stringify({ status }),
-        });
 
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("Failed to update booking status:", res.status, text);
-            return null;
-        }
-
-        const updated = await res.json();
-        return updated;
-    } catch (error) {
-        console.error("Error updating booking status:", error);
-        return null;
-    }
-}
-// Create a new booking
-export async function createBooking(
-    tutorProfileId: string,
-    dateTime: string,
-    status: string
-): Promise<Booking | null> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
-
-    if (!sessionToken) {
-        console.error("No session token found");
-        return null;
-    }
-
-    try {
-        const res = await fetch(`${API_URL}/api/bookings`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Cookie: `better-auth.session_token=${sessionToken}`,
-            },
-            body: JSON.stringify({
-                tutorProfileId,
-                dateTime,
-                status,
-            }),
-        });
-
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("Failed to create booking:", res.status, text);
-            return null;
-        }
-
-        const created = await res.json();
-        return created;
-    } catch (error) {
-        console.error("Error creating booking:", error);
-        return null;
-    }
-}
-
-// Fetch only current user's bookings
-export async function getMyBookings(): Promise<Booking[]> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
-
-    if (!sessionToken) {
-        console.error("No session token found");
-        return [];
-    }
-
-    try {
-        const res = await fetch(`${API_URL}/api/my/bookings`, {
-            headers: {
-                "Content-Type": "application/json",
-                Cookie: `better-auth.session_token=${sessionToken}`,
-            },
-            cache: "no-store",
-        });
-
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("MyBookings API returned error:", res.status, text);
-            return [];
-        }
-
-        const data = await res.json();
-
-        // Support multiple possible response formats
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data.bookings)) return data.bookings;
-        if (Array.isArray(data.data)) return data.data;
-
-        console.log("MyBookings API response:", data);
-        return [];
-    } catch (error) {
-        console.error("Error fetching my bookings:", error);
-        return [];
-    }
-}
-
-// Cancel booking
-export async function cancelBooking(bookingId: string): Promise<Booking | null> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
-
-    if (!sessionToken) {
-        console.error("No session token found");
-        return null;
-    }
+export async function cancelBooking(bookingId: string): Promise<boolean> {
+    const sessionToken = await getAuthToken();
+    if (!sessionToken) return false;
 
     try {
         const res = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
@@ -200,87 +60,86 @@ export async function cancelBooking(bookingId: string): Promise<Booking | null> 
         });
 
         if (!res.ok) {
-            const text = await res.text();
-            console.error("Failed to cancel booking:", res.status, text);
-            return null;
+            const errorData = await res.text();
+            console.error("Cancel Booking Error:", errorData);
+            return false;
         }
 
-        return await res.json();
+        return true;
     } catch (error) {
-        console.error("Error cancelling booking:", error);
-        return null;
+        console.error("cancelBooking error:", error);
+        return false;
     }
 }
 
-export type TutorBooking = {
-    id: string;
-    dateTime: string;
-    status: string;
-    createdAt: string;
-    studentId: string;
-    tutorId: string;
-    student: {
-        id: string;
-        name: string;
-        email: string;
-        image?: string;
-        phone?: string;
-    };
-};
 
-export async function getTutorBookings(): Promise<TutorBooking[]> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
+export async function getMyBookings(): Promise<Booking[]> {
+    const sessionToken = await getAuthToken();
+    if (!sessionToken) return [];
 
-    if (!sessionToken) {
-        console.error("No session token found");
+    try {
+        const res = await fetch(`${API_URL}/api/my/bookings`, {
+            headers: {
+                Cookie: `better-auth.session_token=${sessionToken}`,
+            },
+            next: { revalidate: 0 },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch student bookings");
+        const data = await res.json();
+        return data?.data || data?.bookings || (Array.isArray(data) ? data : []);
+    } catch (error) {
+        console.error("getMyBookings error:", error);
         return [];
     }
+}
+
+
+export async function getTutorBookings(): Promise<Booking[]> {
+    const sessionToken = await getAuthToken();
+    if (!sessionToken) return [];
+
     try {
         const res = await fetch(`${API_URL}/api/my/bookings/tutor`, {
+            headers: {
+                Cookie: `better-auth.session_token=${sessionToken}`,
+            },
+            next: { revalidate: 0 },
+        });
+
+        const data = await res.json();
+     
+        return data?.data || data?.bookings || (Array.isArray(data) ? data : []);
+    } catch (error) {
+        console.error("getTutorBookings error:", error);
+        return [];
+    }
+}
+
+
+export async function createBooking(tutorProfileId: string, dateTime: string, status: string, slotId?: string): Promise<Booking | null> {
+    const sessionToken = await getAuthToken();
+    if (!sessionToken) return null;
+
+    try {
+        const res = await fetch(`${API_URL}/api/bookings`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Cookie: `better-auth.session_token=${sessionToken}`,
             },
-            cache: "no-store",
+            body: JSON.stringify({ tutorProfileId, dateTime, status, slotId }),
         });
-
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("TutorBookings API returned error:", res.status, text);
-            return [];
-        }
-
-        const data = await res.json();
-
-
-        // Flexible return: array হলে সরাসরি, না হলে object থেকে বের করো
-        if (Array.isArray(data)) {
-            return data;
-        } else if (Array.isArray(data.bookings)) {
-            return data.bookings;
-        } else if (Array.isArray(data.data)) {
-            return data.data;
-        } else {
-            console.error("Unexpected API response format:", data);
-            return [];
-        }
+        return res.ok ? await res.json() : null;
     } catch (error) {
-        console.error("Error fetching tutor bookings:", error);
-        return [];
-    }
-
-}
-
-// Update booking status (Tutor side)
-export async function completeBooking(bookingId: string): Promise<TutorBooking | null> {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("better-auth.session_token")?.value;
-
-    if (!sessionToken) {
-        console.error("No session token found");
         return null;
     }
+}
+
+
+export async function completeBooking(bookingId: string): Promise<boolean> {
+    const sessionToken = await getAuthToken();
+    if (!sessionToken) return false;
 
     try {
         const res = await fetch(`${API_URL}/api/bookings/${bookingId}`, {
@@ -291,16 +150,10 @@ export async function completeBooking(bookingId: string): Promise<TutorBooking |
             },
             body: JSON.stringify({ status: "COMPLETED" }),
         });
-
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("Failed to complete booking:", res.status, text);
-            return null;
-        }
-
-        return await res.json();
+        return res.ok;
     } catch (error) {
-        console.error("Error completing booking:", error);
-        return null;
+        return false;
     }
 }
+
+

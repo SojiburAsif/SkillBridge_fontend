@@ -1,45 +1,49 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
 import { env } from "@/env";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
+export async function upsertTutorProfile(
+  formData: FormData,
+  profileId?: string // প্রোফাইল আইডি থাকলে PUT হবে, না থাকলে POST
+) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value; // আপনার টোকেনের নাম অনুযায়ী পরিবর্তন করুন
 
-const API_URL = env.API_URL;
+  // FormData কে JSON অবজেক্টে রূপান্তর
+  const rawData = Object.fromEntries(formData);
+  
+  // API URL নির্ধারণ
+  const url = profileId 
+    ? `${env.API_URL}/api/tutor/profile/` 
+    : `${env.API_URL}/api/tutor/profile`;
 
-export type CreateTutorProfileInput = {
-    bio: string;
-    experience: string;
-    price: number;
-    categoryId: string;
-};
+  const response = await fetch(url, {
+    method: profileId ? "PUT" : "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // সরাসরি কুকি পাস করা বা হেডার থেকে টোকেন নিয়ে পাঠানো
+      Authorization: `Bearer ${token}`, 
+      Cookie: cookieStore
+        .getAll()
+        .map((c) => `${c.name}=${c.value}`)
+        .join("; "),
+    },
+    body: JSON.stringify({
+      ...rawData,
+      price: Number(rawData.price), // নিশ্চিত করা হচ্ছে এটি নাম্বার
+    }),
+  });
 
-export async function createTutorProfile(formData: FormData) {
-    const bio = formData.get("bio") as string;
-    const experience = formData.get("experience") as string;
-    const price = Number(formData.get("price"));
-    const categoryId = formData.get("categoryId") as string;
+  const result = await response.json();
 
-    const data: CreateTutorProfileInput = { bio, experience, price, categoryId };
+  if (!response.ok) {
+    throw new Error(result.message || "Failed to save profile data");
+  }
 
-      const cookieStore = await cookies();
+  // ক্যাশ ক্লিয়ার করা যাতে নতুন ডাটা দেখায়
+  revalidatePath("/dashboard/profile"); 
 
-    const res = await fetch(`${API_URL}/api/tutor/profile`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Cookie: cookieStore.toString(),
-        },
-        body: JSON.stringify(data),
-
-    });
-
-    if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(err?.message || "Failed to create profile");
-    }
-
-    revalidateTag("tutorProfile", "max");
-
-    return { success: true };
+  return { success: true, data: result.data };
 }

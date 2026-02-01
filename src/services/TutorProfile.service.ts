@@ -15,6 +15,36 @@ export interface TutorQueryParams {
   price?: number;
 }
 
+
+// services/TutorProfile.service.ts
+
+
+export const AuthService = {
+  getMyProfile: async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/my/profile`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!res.ok) return null;
+
+      /**
+       * expected response:
+       * {
+       *   success: true,
+       *   data: { tutor profile }
+       * }
+       */
+      return await res.json();
+    } catch (err) {
+      console.error("getMyProfile error:", err);
+      return null;
+    }
+  },
+};
+
+
 export const TutorService = {
   // multiple tutors with filters
   getTutorProfile: async (
@@ -40,9 +70,6 @@ export const TutorService = {
     }
   },
 
-  // single tutor by ID
-
-
 
   getTutorById: async function (id: string) {
     try {
@@ -65,6 +92,21 @@ export const TutorService = {
     } catch (err) {
       console.error(err);
       return { data: [], error: "Failed to fetch categories" };
+    }
+  },
+
+  // ... existing code
+  getAllTutorProfiles: async (): Promise<Tutor[]> => {
+    try {
+      const res = await fetch(`${API_URL}/api/tutor/profile`, {
+        cache: "no-store",
+      });
+      const result = await res.json();
+      // Adjust based on your API structure (e.g., result.data or result)
+      return result.data || result || [];
+    } catch (err) {
+      console.error("getAllTutorProfiles error:", err);
+      return [];
     }
   },
 };
