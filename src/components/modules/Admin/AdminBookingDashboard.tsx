@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -6,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-    Calendar, BookOpen, Clock,
-    LayoutGrid, List, User, Fingerprint,
+    Calendar, Clock,
+    LayoutGrid, List,
     ChevronLeft, ChevronRight, FilterX
 } from "lucide-react";
 import { Booking, BookingStatus, updateBookingStatus, getTutorProfile } from "@/services/AdminBooking.service";
@@ -41,19 +42,28 @@ export default function AdminBookingDashboard({ bookings: initialBookings }: Pro
 
     useEffect(() => {
         const fetchAllNeededData = async () => {
-            const details: Record<string, TutorInfo> = {};
             const uniqueTutorIds = Array.from(new Set(initialBookings.map(b => b.tutorId).filter(Boolean))) as string[];
 
-            for (const id of uniqueTutorIds) {
-                try {
-                    const profile = await getTutorProfile(id);
-                    details[id] = profile;
-                } catch (e) {
-                    details[id] = { name: "Unknown Tutor" };
-                }
-            }
+            // Promise.all use korle sob fetch eksathe hobe, result fast paben
+            const profiles = await Promise.all(
+                uniqueTutorIds.map(async (id) => {
+                    try {
+                        const profile = await getTutorProfile(id);
+                        return { id, profile };
+                    } catch (e) {
+                        return { id, profile: { name: "Unknown Tutor" } };
+                    }
+                })
+            );
+
+            const details: Record<string, TutorInfo> = {};
+            profiles.forEach(({ id, profile }) => {
+                details[id] = profile;
+            });
+
             setTutorData(details);
         };
+
         if (initialBookings.length > 0) fetchAllNeededData();
     }, [initialBookings]);
 
@@ -68,11 +78,6 @@ export default function AdminBookingDashboard({ bookings: initialBookings }: Pro
         if (!tutorId || !slotId || !tutorData[tutorId]?.slots) return "Time N/A";
         const slot = tutorData[tutorId].slots?.find(s => s.id === slotId);
         return slot ? `${slot.startTime} - ${slot.endTime}` : "Slot Expired";
-    };
-
-    const handleCopy = (text: string, label: string) => {
-        navigator.clipboard.writeText(text);
-        toast.success(`${label} ID copied!`);
     };
 
     const handleStatusChange = async (bookingId: string, newStatus: string) => {
@@ -92,6 +97,9 @@ export default function AdminBookingDashboard({ bookings: initialBookings }: Pro
             case "CONFIRMED": return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-900/50";
             case "CANCELLED": return "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-900/50";
             case "COMPLETED": return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-900/50";
+            // ✅ Added New Status Styles
+            case "ATTENDED": return "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-900/50";
+            case "RESCHEDULED": return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-900/50";
             default: return "bg-slate-50 text-slate-700 border-slate-200 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800";
         }
     };
@@ -276,6 +284,8 @@ function StatusSelector({ currentStatus, onUpdate, fullWidth }: { currentStatus:
             </SelectTrigger>
             <SelectContent className="rounded-xl border-2 font-black dark:bg-zinc-950 dark:border-zinc-800">
                 <SelectItem value="CONFIRMED" className="text-emerald-600 text-[10px]">CONFIRMED</SelectItem>
+                <SelectItem value="ATTENDED" className="text-violet-600 text-[10px]">ATTENDED</SelectItem>
+                <SelectItem value="RESCHEDULED" className="text-amber-600 text-[10px]">RESCHEDULED</SelectItem>
                 <SelectItem value="CANCELLED" className="text-rose-600 text-[10px]">CANCELLED</SelectItem>
                 <SelectItem value="COMPLETED" className="text-sky-600 text-[10px]">COMPLETED</SelectItem>
             </SelectContent>

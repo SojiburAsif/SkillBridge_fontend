@@ -1,7 +1,8 @@
 import React from "react";
 import { Star, LayoutGrid, ArrowRight, ShieldCheck, Banknote } from "lucide-react";
-import { Tutor } from "@/types/Tutor.type";
+
 import Link from "next/link";
+import { Tutor } from "@/types";
 
 export default function TutorCard({ tutor }: { tutor: Tutor }) {
   return (

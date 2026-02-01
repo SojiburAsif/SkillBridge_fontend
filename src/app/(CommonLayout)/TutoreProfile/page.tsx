@@ -3,8 +3,9 @@
 import React, { JSX, useEffect, useState } from "react";
 import TutorCard from "@/components/modules/Tutor/TutoreCard";
 import { TutorService } from "@/services/TutorProfile.service";
-import { Tutor } from "@/types/Tutor.type";
+
 import { Search, RefreshCw, SlidersHorizontal, Star, DollarSign, Layers } from "lucide-react";
+import { Tutor, } from "@/types";
 
 type Category = { id: string; name: string };
 

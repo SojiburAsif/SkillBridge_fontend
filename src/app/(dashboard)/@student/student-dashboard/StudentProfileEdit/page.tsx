@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,12 +12,11 @@ import {
   StudentProfile 
 } from "@/services/StudentProfile.service";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  Loader2, User, Mail, GraduationCap, Heart, 
+  Loader2, GraduationCap, Heart, 
   PlusCircle, Sparkles, BookOpen, Fingerprint, 
-  ShieldCheck, ArrowRight, X, Save, Edit3
+  ShieldCheck, ArrowRight, X, Save, Edit3, UserCircle, Hash
 } from "lucide-react";
 import Link from "next/link";
 
@@ -42,7 +42,7 @@ export default function StudentProfilePage() {
       }
     } catch (err) {
       console.error("Fetch Error:", err);
-      toast.error("প্রোফাইল লোড করতে সমস্যা হয়েছে");
+      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function StudentProfilePage() {
 
   const handleAction = async () => {
     if (!grade.trim() || !interests.trim()) {
-      return toast.error("সবগুলো ঘর পূরণ করুন");
+      return toast.error("Please fill all fields");
     }
 
     setIsSubmitting(true);
@@ -58,19 +58,18 @@ export default function StudentProfilePage() {
       let result;
       if (isEditing && profile) {
         result = await updateStudentProfile({ grade, interests });
-        toast.success("Profile Updated");
+        toast.success("Profile Updated Successfully");
       } else {
         result = await createStudentProfile(grade.trim(), interests.trim());
-        toast.success("Create Profile");
+        toast.success("Profile Created Successfully");
       }
 
       if (result) {
-
         setProfile(prev => ({ ...prev, ...result, user: prev?.user || result?.user }));
         setIsEditing(false);
       }
     } catch (err) {
-      toast.error("Faild");
+      toast.error("Operation failed. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -78,9 +77,9 @@ export default function StudentProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-[80vh] items-center justify-center space-y-4">
+      <div className="flex flex-col h-[80vh] items-center justify-center space-y-6 bg-[#fcfcfd] dark:bg-[#09090b]">
         <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-        <p className="text-[10px] font-black uppercase tracking-[4px] text-slate-400">Syncing Identity...</p>
+        <p className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Syncing Identity</p>
       </div>
     );
   }
@@ -88,174 +87,156 @@ export default function StudentProfilePage() {
   // ================= VIEW MODE =================
   if (profile && !isEditing) {
     return (
-      <div className="max-w-5xl mx-auto p-4 md:p-10 space-y-8 animate-in fade-in zoom-in-95 duration-700">
-        <div className="flex items-center justify-between bg-white dark:bg-zinc-950 p-6 rounded-[28px] border border-slate-100 dark:border-zinc-900 shadow-sm">
-           <div className="flex items-center gap-3">
-             <div className="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <ShieldCheck size={24} />
-             </div>
-             <div>
-                <h1 className="text-xl font-black uppercase tracking-tighter italic">Student <span className="text-blue-600">Portal</span></h1>
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Academic Identity Card</p>
-             </div>
-           </div>
-           <Button 
-             variant="outline" 
-             onClick={() => setIsEditing(true)}
-             className="rounded-xl border-blue-100 hover:bg-blue-50 text-blue-600 font-bold text-xs h-10 px-6 transition-all active:scale-95"
-           >
-             <Edit3 size={14} className="mr-2" /> Edit Profile
-           </Button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <Card className="lg:col-span-4 border-none shadow-2xl dark:bg-zinc-950 rounded-[40px] overflow-hidden group">
-            <div className="h-32 bg-gradient-to-br from-blue-600 to-indigo-900 relative">
-               <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-            </div>
-            <CardContent className="relative pt-0 pb-10 text-center">
-              <Avatar className="h-32 w-32 -mt-16 mx-auto border-[8px] border-white dark:border-zinc-950 shadow-2xl rounded-[35px] transition-transform duration-500 group-hover:scale-105">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.user?.name || "User"}`} />
-                <AvatarFallback className="text-3xl font-black bg-blue-50 text-blue-600">
-                    {profile?.user?.name ? profile.user.name[0] : "S"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="mt-6 space-y-2">
-                <h2 className="text-2xl font-black dark:text-white uppercase tracking-tight truncate px-4">
-                    {profile?.user?.name || "Student Name"}
-                </h2>
-                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-500 border-none rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest">Verified Account</Badge>
-              </div>
-              <div className="mt-8 space-y-4 pt-8 border-t border-slate-50 dark:border-zinc-900 text-left px-6">
-                <div className="flex items-center gap-3 text-slate-500 group-hover:text-blue-600 transition-colors">
-                  <Mail size={16} />
-                  <span className="text-xs font-bold truncate">{profile?.user?.email || "Email not available"}</span>
+      <div className="min-h-screen bg-[#f8fafc] dark:bg-[#09090b] py-12 px-6 transition-colors duration-500">
+        <div className="max-w-5xl mx-auto space-y-6">
+          
+          <div className="bg-white dark:bg-zinc-900 p-8 rounded-[40px] border border-slate-100 dark:border-zinc-800 shadow-xl shadow-blue-500/5 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+             
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative">
+                <div className="flex items-center gap-6">
+                   <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                      <UserCircle size={32} />
+                   </div>
+                   <div>
+                      <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-black uppercase tracking-tighter dark:text-white leading-none">
+                          {profile?.user?.name || "Student"}
+                        </h1>
+                        <Badge className="bg-blue-600 text-white border-none rounded-md px-2 py-0.5 text-[8px] font-black uppercase tracking-widest">Official Member</Badge>
+                      </div>
+                      <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
+                        <p className="text-slate-400 dark:text-zinc-500 font-bold text-xs uppercase tracking-widest flex items-center gap-1">
+                          <Hash size={12} className="text-blue-600" /> Student ID: <span className="text-slate-900 dark:text-slate-100 font-black">{profile?.id?.slice(-8).toUpperCase()}</span>
+                        </p>
+                        <p className="hidden md:block text-slate-300">|</p>
+                        <p className="text-slate-400 dark:text-zinc-500 font-bold text-xs uppercase tracking-widest">{profile?.user?.email}</p>
+                      </div>
+                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Fingerprint size={16} />
-                  <span className="text-[10px] font-mono tracking-tighter uppercase italic">Ref: {profile?.id?.slice(-12) || "N/A"}</span>
+
+                <Button 
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-2xl bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white font-black text-[10px] uppercase h-12 px-8 tracking-widest transition-all shadow-lg shadow-slate-900/10 dark:shadow-blue-600/20"
+                >
+                  <Edit3 size={14} className="mr-2" /> Modify Data
+                </Button>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+                <div className="flex items-center gap-4 p-6 rounded-[25px] bg-slate-50 dark:bg-zinc-950/50 border border-slate-100 dark:border-zinc-800 transition-all hover:border-blue-200 group">
+                   <div className="w-12 h-12 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                      <GraduationCap size={24} />
+                   </div>
+                   <div>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Class Level</p>
+                      <p className="font-black dark:text-white uppercase text-lg">{profile.grade}</p>
+                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="flex items-center gap-4 p-6 rounded-[25px] bg-slate-50 dark:bg-zinc-950/50 border border-slate-100 dark:border-zinc-800 transition-all hover:border-blue-200 group">
+                   <div className="w-12 h-12 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                      <Heart size={24} />
+                   </div>
+                   <div>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Key Interests</p>
+                      <p className="font-black dark:text-white uppercase text-lg">{profile.interests}</p>
+                   </div>
+                </div>
+             </div>
+          </div>
 
-          <div className="lg:col-span-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-8 bg-white dark:bg-zinc-950 rounded-[32px] shadow-xl shadow-blue-500/5 flex items-center gap-6 border border-slate-50 dark:border-zinc-900">
-                 <div className="h-16 w-16 bg-blue-50 dark:bg-blue-500/10 rounded-[22px] flex items-center justify-center text-blue-600 shadow-inner"><GraduationCap size={32} /></div>
-                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-1">Grade Level</p>
-                    <p className="text-xl font-black text-slate-800 dark:text-zinc-100">{profile.grade}</p>
-                 </div>
-              </div>
-              <div className="p-8 bg-white dark:bg-zinc-950 rounded-[32px] shadow-xl shadow-rose-500/5 flex items-center gap-6 border border-slate-50 dark:border-zinc-900">
-                 <div className="h-16 w-16 bg-rose-50 dark:bg-rose-500/10 rounded-[22px] flex items-center justify-center text-rose-600 shadow-inner"><Heart size={32} /></div>
-                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-1">Interests</p>
-                    <p className="text-xl font-black text-slate-800 dark:text-zinc-100">{profile.interests}</p>
-                 </div>
-              </div>
-            </div>
-
-            <Card className="border-none shadow-2xl shadow-slate-200/40 dark:shadow-none dark:bg-zinc-950 rounded-[40px] p-2 relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-8 opacity-5"><Sparkles size={100} /></div>
-               <CardHeader className="p-8 pb-4">
-                  <CardTitle className="text-sm font-black uppercase tracking-[4px] flex items-center gap-2 text-blue-600">
-                    <BookOpen size={18}/> Navigation Portal
-                  </CardTitle>
-               </CardHeader>
-               <CardContent className="p-8 pt-0 flex flex-col md:flex-row gap-4">
-                  <Link href="/TutoreProfile" className="flex-[2]">
-                    <Button className="w-full h-16 rounded-[22px] bg-blue-600 hover:bg-blue-700 font-black uppercase tracking-[2px] text-xs shadow-xl shadow-blue-500/30 group">
-                        Explore Professional Tutors 
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                  <Button variant="outline" className="flex-1 h-16 rounded-[22px] border-slate-100 dark:border-zinc-800 font-black uppercase tracking-widest text-[9px]">
-                    My Learning
-                  </Button>
-               </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             <Link href="/TutoreProfile" className="md:col-span-2">
+                <Button className="w-full h-20 rounded-[30px] bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[3px] text-xs group shadow-xl shadow-blue-500/10 transition-all hover:translate-y-[-2px]">
+                   Access Professional Mentors <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" />
+                </Button>
+             </Link>
+             <div className="h-20 bg-white dark:bg-zinc-900 rounded-[30px] border border-slate-100 dark:border-zinc-800 flex flex-col items-center justify-center">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Authenticated via</p>
+                <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-widest">
+                  <ShieldCheck size={14} /> Secure-Pass
+                </div>
+             </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // ================= CREATE / EDIT FORM MODE =================
+  // ================= FORM MODE =================
   return (
-    <div className="max-w-xl mx-auto p-4 md:p-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
-      <Card className="border-none shadow-2xl dark:bg-zinc-950 rounded-[50px] overflow-hidden backdrop-blur-sm border border-white/10">
-        <CardHeader className="text-center pt-14 pb-4">
-          <div className={`inline-flex items-center justify-center p-6 rounded-[30px] text-white mb-6 shadow-2xl transition-all duration-700 ${isEditing ? 'bg-amber-500 rotate-12 scale-110' : 'bg-blue-600 -rotate-3'}`}>
-            {isEditing ? <Edit3 size={32} /> : <Sparkles size={32} />}
+    <div className="min-h-screen bg-[#fcfcfd] dark:bg-[#09090b] flex items-center justify-center p-6">
+      <Card className="w-full max-w-4xl border-none shadow-2xl dark:bg-zinc-900 rounded-[45px] overflow-hidden bg-white">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/3 bg-blue-600 p-10 flex flex-col justify-between text-white relative overflow-hidden">
+            <div className="absolute bottom-0 left-0 p-4 opacity-10"><ShieldCheck size={200} /></div>
+            <div className="relative">
+              <Sparkles size={40} className="mb-6 opacity-50" />
+              <h2 className="text-3xl font-black uppercase tracking-tighter leading-none">Identity<br />Vault</h2>
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[3px] opacity-60 leading-relaxed">
+              Define your academic path to unlock personalized learning opportunities.
+            </p>
           </div>
-          <CardTitle className="text-4xl font-black uppercase tracking-tighter dark:text-white leading-[0.9]">
-              {isEditing ? "Update" : "Create"} <br /><span className={isEditing ? 'text-amber-500' : 'text-blue-600'}>Profile</span>
-          </CardTitle>
-          <CardDescription className="text-xs font-bold uppercase tracking-[3px] pt-8 opacity-60 italic">
-              {isEditing ? "Modify your current credentials" : "Build your academic identity today"}
-          </CardDescription>
-        </CardHeader>
 
-        <CardContent className="p-8 md:p-14 space-y-10">
-          <div className="space-y-6">
-            <div className="group space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[4px] text-slate-400 group-focus-within:text-blue-600 transition-colors ml-1">Grade Level</label>
-              <div className="relative">
-                <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={20} />
-                <Input
-                  placeholder="e.g. 3rd Year (CSE) or Grade 12"
-                  value={grade}
-                  onChange={e => setGrade(e.target.value)}
-                  className="pl-14 h-16 rounded-[24px] border-slate-100 dark:border-zinc-900 bg-slate-50/50 dark:bg-zinc-900/50 focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 font-bold transition-all"
-                />
+          <CardContent className="md:w-2/3 p-10 md:p-14 space-y-8">
+            <div className="space-y-2">
+              <CardTitle className="text-2xl font-black uppercase tracking-tighter dark:text-white leading-none">
+                {isEditing ? "Modify" : "Initialize"} <span className="text-blue-600">Identity</span>
+              </CardTitle>
+              <CardDescription className="text-[10px] font-black uppercase tracking-widest">Student Information System</CardDescription>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <div className="group space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-blue-600 ml-2">Current Grade</label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-all" size={20} />
+                  <Input
+                    placeholder="e.g. Honours 3rd Year"
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    className="pl-14 h-14 rounded-[20px] border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 focus-visible:ring-blue-600 font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="group space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-blue-600 ml-2">Academic Interests</label>
+                <div className="relative">
+                  <Heart className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-all" size={20} />
+                  <Input
+                    placeholder="e.g. AI & Robotics, Physics"
+                    value={interests}
+                    onChange={e => setInterests(e.target.value)}
+                    className="pl-14 h-14 rounded-[20px] border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 focus-visible:ring-blue-600 font-bold"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="group space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[4px] text-slate-400 group-focus-within:text-rose-600 transition-colors ml-1">Learning Interests</label>
-              <div className="relative">
-                <Heart className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-rose-600 transition-colors" size={20} />
-                <Input
-                  placeholder="e.g. Web Dev, Physics, Music"
-                  value={interests}
-                  onChange={e => setInterests(e.target.value)}
-                  className="pl-14 h-16 rounded-[24px] border-slate-100 dark:border-zinc-900 bg-slate-50/50 dark:bg-zinc-900/50 focus-visible:ring-2 focus-visible:ring-rose-600/20 focus-visible:border-rose-600 font-bold transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <Button
-              onClick={handleAction}
-              disabled={isSubmitting}
-              className={`w-full h-16 rounded-[25px] text-white font-black uppercase tracking-[4px] text-[11px] shadow-xl transition-all hover:translate-y-[-2px] active:scale-[0.98] ${
-                isEditing 
-                ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30' 
-                : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30'
-              }`}
-            >
-              {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : (isEditing ? <Save className="mr-2" size={18} /> : <PlusCircle className="mr-2" size={18} />)}
-              {isEditing ? "Confirm Changes" : "Initialize Identity"}
-            </Button>
-
-            {isEditing && (
-              <Button 
-                variant="ghost" 
-                onClick={() => setIsEditing(false)} 
-                className="h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px] text-slate-400 hover:text-rose-500 hover:bg-rose-50/50"
+            <div className="flex items-center gap-4 pt-4">
+              <Button
+                onClick={handleAction}
+                disabled={isSubmitting}
+                className="flex-1 h-14 rounded-[20px] bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
               >
-                <X className="mr-1" size={14} /> Abort Editing
+                {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : (isEditing ? <Save className="mr-2" size={16} /> : <PlusCircle className="mr-2" size={16} />)}
+                {isEditing ? "Commit Changes" : "Setup Profile"}
               </Button>
-            )}
-          </div>
-          
-          <div className="text-center pt-2">
-             <p className="text-[9px] font-black text-slate-300 uppercase tracking-[3px]">System Authenticated Secure Access</p>
-          </div>
-        </CardContent>
+
+              {isEditing && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditing(false)} 
+                  className="h-14 w-14 rounded-[20px] border-slate-100 dark:border-zinc-800 text-slate-400 hover:text-red-500 hover:border-red-100 transition-colors"
+                >
+                  <X size={20} />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </div>
       </Card>
     </div>
   );
