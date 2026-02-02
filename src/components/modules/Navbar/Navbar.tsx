@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import { ModeToggle } from "@/components/layout/ModeToggle";
+import { authClient } from "@/lib/auth-client";
 
 /* ================= TYPES ================= */
 
@@ -70,6 +71,10 @@ const Navbar = ({
 }: NavbarProps) => {
   const isLoggedIn = Boolean(session?.user);
 
+  const handalLogout = async () => {
+    await authClient.signOut()
+  }
+
   return (
     <header
       className={cn(
@@ -116,13 +121,13 @@ const Navbar = ({
             {isLoggedIn ? (
               <div className="flex items-center gap-3 bg-slate-50 dark:bg-zinc-900/50 p-1 pr-4 rounded-full border border-slate-100 dark:border-zinc-800">
                 <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-                    <User size={16} />
+                  <User size={16} />
                 </div>
                 <span className="text-sm font-bold truncate max-w-[120px]">
                   {session?.user?.name ?? "User"}
                 </span>
                 <Link href="/logout" className="text-slate-400 hover:text-red-500 transition-colors ml-2">
-                   <LogOut size={16} />
+                  <LogOut size={16} />
                 </Link>
               </div>
             ) : (
@@ -158,56 +163,56 @@ const Navbar = ({
           <div className="flex items-center gap-2">
             <ModeToggle />
             <Sheet>
-                <SheetTrigger asChild>
+              <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                    <Menu size={22} />
+                  <Menu size={22} />
                 </Button>
-                </SheetTrigger>
+              </SheetTrigger>
 
-                <SheetContent side="right" className="bg-white dark:bg-black border-l dark:border-zinc-900">
+              <SheetContent side="right" className="bg-white dark:bg-black border-l dark:border-zinc-900">
                 <SheetHeader className="text-left">
-                    <SheetTitle className="text-xl font-black tracking-tighter uppercase">
+                  <SheetTitle className="text-xl font-black tracking-tighter uppercase">
                     {logo.title}
-                    </SheetTitle>
+                  </SheetTitle>
                 </SheetHeader>
 
                 <div className="flex flex-col gap-1 mt-8">
-                    {menu.map((item) => (
+                  {menu.map((item) => (
                     <Link
-                        key={item.title}
-                        href={item.url}
-                        className="text-md font-bold p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors"
+                      key={item.title}
+                      href={item.url}
+                      className="text-md font-bold p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors"
                     >
-                        {item.title}
+                      {item.title}
                     </Link>
-                    ))}
+                  ))}
 
-                    <div className="h-[1px] bg-slate-100 dark:bg-zinc-900 my-4" />
+                  <div className="h-[1px] bg-slate-100 dark:bg-zinc-900 my-4" />
 
-                    {isLoggedIn ? (
+                  {isLoggedIn ? (
                     <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3 px-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white uppercase">
-                                {session?.user?.name?.[0]}
-                            </div>
-                            <span className="font-bold">{session?.user?.name}</span>
+                      <div className="flex items-center gap-3 px-3">
+                        <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white uppercase">
+                          {session?.user?.name?.[0]}
                         </div>
-                        <Button asChild variant="destructive" className="w-full rounded-xl font-bold">
-                            <Link href="/logout">Logout</Link>
-                        </Button>
+                        <span className="font-bold">{session?.user?.name}</span>
+                      </div>
+                      <Button onClick={handalLogout} asChild variant="destructive" className="w-full rounded-xl font-bold">
+                        Logout
+                      </Button>
                     </div>
-                    ) : (
+                  ) : (
                     <div className="grid grid-cols-2 gap-3 mt-2">
-                        <Button asChild variant="outline" className="rounded-xl font-bold">
+                      <Button asChild variant="outline" className="rounded-xl font-bold">
                         <Link href={auth.login.url}>{auth.login.title}</Link>
-                        </Button>
-                        <Button asChild className="bg-blue-600 rounded-xl font-bold">
+                      </Button>
+                      <Button asChild className="bg-blue-600 rounded-xl font-bold">
                         <Link href={auth.signup.url}>{auth.signup.title}</Link>
-                        </Button>
+                      </Button>
                     </div>
-                    )}
+                  )}
                 </div>
-                </SheetContent>
+              </SheetContent>
             </Sheet>
           </div>
         </div>

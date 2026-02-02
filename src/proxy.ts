@@ -1,20 +1,21 @@
+import { Role, RoleType } from "@/app/constants/role";
+import { userService } from "@/services/user.service";
 import { NextRequest, NextResponse } from "next/server";
-import { Role, RoleType } from "./app/constants/role";
-import { userService } from "./services/user.service";
+
 
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     // ---------------- Logout ----------------
-    if (pathname === "/logout") {
-        const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete({
-            name: "better-auth.session_token",
-            path: "/",
-        });
+    // if (pathname === "/logout") {
+    //     const response = NextResponse.redirect(new URL("/login", request.url));
+    //     response.cookies.delete({
+    //         name: "better-auth.session_token",
+    //         path: "/",
+    //     });
 
-        return response;
-    }
+    //     return response;
+    // }
 
     let isAuthenticated = false;
     let role: RoleType | null = null;
@@ -25,7 +26,6 @@ export async function proxy(request: NextRequest) {
         console.log("Session error:", error.message);
     }
     
-
     if (data?.user) {
         isAuthenticated = true;
         role = data.user.role;
