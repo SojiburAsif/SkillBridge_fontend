@@ -6,15 +6,15 @@ import { revalidatePath } from "next/cache";
 
 export async function upsertTutorProfile(
   formData: FormData,
-  profileId?: string // প্রোফাইল আইডি থাকলে PUT হবে, না থাকলে POST
+  profileId?: string 
 ) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value; // আপনার টোকেনের নাম অনুযায়ী পরিবর্তন করুন
+  const token = cookieStore.get("accessToken")?.value; 
 
-  // FormData কে JSON অবজেক্টে রূপান্তর
+
   const rawData = Object.fromEntries(formData);
   
-  // API URL নির্ধারণ
+ 
   const url = profileId 
     ? `${env.API_URL}/api/tutor/profile/` 
     : `${env.API_URL}/api/tutor/profile`;
@@ -23,7 +23,7 @@ export async function upsertTutorProfile(
     method: profileId ? "PUT" : "POST",
     headers: {
       "Content-Type": "application/json",
-      // সরাসরি কুকি পাস করা বা হেডার থেকে টোকেন নিয়ে পাঠানো
+    
       Authorization: `Bearer ${token}`, 
       Cookie: cookieStore
         .getAll()
@@ -32,7 +32,7 @@ export async function upsertTutorProfile(
     },
     body: JSON.stringify({
       ...rawData,
-      price: Number(rawData.price), // নিশ্চিত করা হচ্ছে এটি নাম্বার
+      price: Number(rawData.price), 
     }),
   });
 
@@ -42,7 +42,6 @@ export async function upsertTutorProfile(
     throw new Error(result.message || "Failed to save profile data");
   }
 
-  // ক্যাশ ক্লিয়ার করা যাতে নতুন ডাটা দেখায়
   revalidatePath("/dashboard/profile"); 
 
   return { success: true, data: result.data };

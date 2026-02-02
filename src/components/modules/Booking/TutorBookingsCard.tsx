@@ -26,7 +26,7 @@ export function TutorBookingsCard({ bookings }: { bookings: TutorBooking[] }) {
   const [openCompleteId, setOpenCompleteId] = useState<string | null>(null);
   const [openRescheduleId, setOpenRescheduleId] = useState<string | null>(null);
 
-  // ✅ 1. Complete Session Logic
+  // ✅ 1. Complete Session Logic (Shudhu ATTENDED thakle)
   const handleComplete = async (id: string) => {
     setIsActionLoading(id);
     const success = await completeBooking(id);
@@ -42,7 +42,7 @@ export function TutorBookingsCard({ bookings }: { bookings: TutorBooking[] }) {
     setIsActionLoading(null);
   };
 
-  // ✅ 2. Reschedule Logic
+  // ✅ 2. Reschedule Logic (Shudhu CONFIRMED thakle)
   const handleReschedule = async (id: string) => {
     setIsActionLoading(id);
     try {
@@ -81,7 +81,7 @@ export function TutorBookingsCard({ bookings }: { bookings: TutorBooking[] }) {
         return (
           <div key={b.id} className="group bg-white dark:bg-zinc-950 p-5 rounded-[32px] border border-slate-100 dark:border-zinc-900 flex flex-col md:flex-row items-center gap-6 transition-all hover:shadow-xl hover:shadow-indigo-500/5 hover:border-indigo-100 dark:hover:border-indigo-500/20">
 
-            {/* Student Avatar & Info */}
+            {/* Student Info */}
             <div className="flex items-center gap-4 flex-1 w-full">
               <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-zinc-900 flex items-center justify-center text-indigo-600 border border-slate-100 dark:border-zinc-800 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                 <User size={24} />
@@ -92,7 +92,7 @@ export function TutorBookingsCard({ bookings }: { bookings: TutorBooking[] }) {
               </div>
             </div>
 
-            {/* Schedule Details */}
+            {/* Schedule */}
             <div className="flex flex-wrap gap-3 w-full md:w-auto">
               <div className="flex items-center gap-2 bg-slate-50 dark:bg-zinc-900 px-4 py-2 rounded-2xl border border-slate-100 dark:border-zinc-800">
                 <Calendar size={14} className="text-indigo-500" />
@@ -110,77 +110,56 @@ export function TutorBookingsCard({ bookings }: { bookings: TutorBooking[] }) {
 
               <div className="flex items-center gap-2">
                 
-                {/* ✅ Reschedule Button WITH MODAL */}
-                {(b.status === "CONFIRMED" || b.status === "PENDING") && (
-                  <Dialog open={openRescheduleId === b.id} onOpenChange={(open) => setOpenRescheduleId(open ? b.id : null)}>
+                {/* Case 1: ATTENDED -> Show Complete Button */}
+                {b.status === "ATTENDED" && (
+                  <Dialog open={openCompleteId === b.id} onOpenChange={(open) => setOpenCompleteId(open ? b.id : null)}>
                     <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-10 rounded-2xl border-amber-200 text-amber-600 hover:bg-amber-50 text-[10px] font-black uppercase gap-2"
-                      >
-                        <RefreshCw size={12} />
-                        Reschedule
-                      </Button>
+                      <button className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-200">
+                        Complete <ArrowRight size={12} />
+                      </button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[400px] rounded-[32px] border-none bg-white dark:bg-zinc-950 p-8">
+                    <DialogContent className="sm:max-w-[400px] rounded-[32px] bg-white dark:bg-zinc-950 p-8 border-none">
                       <DialogHeader className="flex flex-col items-center text-center space-y-4">
-                        <div className="w-16 h-16 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center">
-                          <AlertTriangle size={32} />
+                        <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
+                          <CheckCircle2 size={32} />
                         </div>
-                        <DialogTitle className="text-2xl font-black uppercase tracking-tight dark:text-white">
-                          Reschedule Session?
-                        </DialogTitle>
-                        <DialogDescription className="text-sm font-medium text-slate-500 dark:text-zinc-400">
-                          Are you sure you want to mark this session with <span className="font-bold text-amber-600">{b.student?.name}</span> as Rescheduled? This will notify the admin.
+                        <DialogTitle className="text-2xl font-black uppercase tracking-tight">Finish Session?</DialogTitle>
+                        <DialogDescription className="text-sm">
+                          Mark the session with {b.student?.name} as completed.
                         </DialogDescription>
                       </DialogHeader>
-                      <DialogFooter className="flex flex-row gap-3 mt-6">
-                        <Button variant="ghost" onClick={() => setOpenRescheduleId(null)} className="flex-1 rounded-2xl font-black uppercase text-[10px] tracking-widest">
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={() => handleReschedule(b.id)}
-                          disabled={isActionLoading === b.id}
-                          className="flex-1 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest"
-                        >
-                          {isActionLoading === b.id ? <Loader2 className="animate-spin" /> : "Confirm"}
+                      <DialogFooter className="flex gap-3 mt-6">
+                        <Button variant="ghost" onClick={() => setOpenCompleteId(null)} className="flex-1 rounded-2xl font-black text-[10px]">No</Button>
+                        <Button onClick={() => handleComplete(b.id)} disabled={isActionLoading === b.id} className="flex-1 bg-emerald-600 text-white rounded-2xl font-black text-[10px]">
+                          {isActionLoading === b.id ? <Loader2 className="animate-spin" /> : "Yes, Complete"}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 )}
 
-                {/* ✅ Complete Session WITH MODAL */}
+                {/* Case 2: CONFIRMED -> Show Reschedule Button */}
                 {b.status === "CONFIRMED" && (
-                  <Dialog open={openCompleteId === b.id} onOpenChange={(open) => setOpenCompleteId(open ? b.id : null)}>
+                  <Dialog open={openRescheduleId === b.id} onOpenChange={(open) => setOpenRescheduleId(open ? b.id : null)}>
                     <DialogTrigger asChild>
-                      <button className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
-                        Complete <ArrowRight size={12} />
-                      </button>
+                      <Button variant="outline" size="sm" className="h-10 rounded-2xl border-amber-200 text-amber-600 hover:bg-amber-50 text-[10px] font-black uppercase gap-2">
+                        <RefreshCw size={12} /> Reschedule
+                      </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[400px] rounded-[32px] border-none bg-white dark:bg-zinc-950 p-8">
+                    <DialogContent className="sm:max-w-[400px] rounded-[32px] bg-white dark:bg-zinc-950 p-8 border-none">
                       <DialogHeader className="flex flex-col items-center text-center space-y-4">
-                        <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center">
-                          <CheckCircle2 size={32} />
+                        <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+                          <AlertTriangle size={32} />
                         </div>
-                        <DialogTitle className="text-2xl font-black uppercase tracking-tight dark:text-white">
-                          Finish Session?
-                        </DialogTitle>
-                        <DialogDescription className="text-sm font-medium text-slate-500 dark:text-zinc-400">
-                          Confirm completion for <span className="text-indigo-600 font-bold">{b.student?.name}</span>?
+                        <DialogTitle className="text-2xl font-black uppercase tracking-tight">Reschedule?</DialogTitle>
+                        <DialogDescription className="text-sm">
+                          Are you sure you want to reschedule this session?
                         </DialogDescription>
                       </DialogHeader>
-                      <DialogFooter className="flex flex-row gap-3 mt-6">
-                        <Button variant="ghost" onClick={() => setOpenCompleteId(null)} className="flex-1 rounded-2xl font-black uppercase text-[10px] tracking-widest">
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={() => handleComplete(b.id)}
-                          disabled={isActionLoading === b.id}
-                          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest"
-                        >
-                          {isActionLoading === b.id ? <Loader2 className="animate-spin" /> : "Yes, Complete"}
+                      <DialogFooter className="flex gap-3 mt-6">
+                        <Button variant="ghost" onClick={() => setOpenRescheduleId(null)} className="flex-1 rounded-2xl font-black text-[10px]">Cancel</Button>
+                        <Button onClick={() => handleReschedule(b.id)} disabled={isActionLoading === b.id} className="flex-1 bg-amber-600 text-white rounded-2xl font-black text-[10px]">
+                          {isActionLoading === b.id ? <Loader2 className="animate-spin" /> : "Confirm"}
                         </Button>
                       </DialogFooter>
                     </DialogContent>

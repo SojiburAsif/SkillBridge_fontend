@@ -7,40 +7,22 @@ import { cookies } from "next/headers";
 
 const BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-export interface ReviewData {
-    rating: number;
-    comment: string;
-    bookingId: string;
-    studentId: string;
-    tutorId: string;
-}
-
 /**
  * ✅ 1. Create a Review (POST)
  */
-export const createReview = async (reviewData: ReviewData) => {
+export const createReview = async (reviewData: any) => {
     try {
         const cookieStore = await cookies();
-
-        // 🚨 FIXED: Apnar log onujayi cookie name eikhane 'better-auth.session_token'
         const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-        console.log("--- Server Action Check ---");
-        console.log("Session Token Found:", !!sessionToken);
-
         if (!sessionToken) {
-            return {
-                success: false,
-                message: "Authentication failed. Session not found. Please log in again."
-            };
+            return { success: false, message: "Session expired. Please login again." };
         }
 
-        // Backend call
         const res = await fetch(`${BASE_URL}/api/reviews`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // ✅ Session token string format-e pathano hochche
                 "Authorization": `Bearer ${sessionToken}`,
             },
             body: JSON.stringify(reviewData),
@@ -48,28 +30,12 @@ export const createReview = async (reviewData: ReviewData) => {
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
-            return {
-                success: false,
-                message: data.message || data.error || "Review submission failed."
-            };
-        }
+        if (!res.ok) return { success: false, message: data.message || "Failed to post review." };
 
         revalidatePath("/student-dashboard/MyBookings");
-
-        return {
-            success: true,
-            message: "Review submitted successfully!",
-            data: data.data
-        };
-
-    } catch (error: any) {
-        console.error("CREATE_REVIEW_SERVICE_ERROR:", error.message);
-        return {
-            success: false,
-            message: "Internal Server Error. Please try again later."
-        };
+        return { success: true, data: data.data };
+    } catch (error) {
+        return { success: false, message: "Internal Server Error." };
     }
 };
 
@@ -80,49 +46,46 @@ export const getReviewByBooking = async (bookingId: string) => {
     try {
         const res = await fetch(`${BASE_URL}/api/reviews/booking/${bookingId}`, {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            next: { revalidate: 0 }
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
-            return { success: false, message: data.error || "Review not found" };
-        }
+        if (!res.ok) return { success: false, message: data.message || "Review not found" };
 
         return { success: true, data: data.data };
-    } catch (error: any) {
+    } catch (error) {
         return { success: false, message: "Could not fetch review data" };
     }
 };
 
+/**
+ * ✅ 3. Get Tutor's My Reviews (GET)
+ */
 export const getMyReviews = async (userId: string) => {
     try {
         const cookieStore = await cookies();
         const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-        console.log(sessionToken);
+        if (!sessionToken || !userId) {
+            return { success: false, message: "Invalid session or User ID missing." };
+        }
 
-        // Apnar endpoint onujayi: /api/reviews/tutor/:id
         const res = await fetch(`${BASE_URL}/api/reviews/tutor/${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${sessionToken}`,
             },
-            next: { revalidate: 0 }
+            cache: 'no-store'
         });
 
         const data = await res.json();
+        if (!res.ok) return { success: false, message: data.message || "Fetch failed" };
 
-        if (!res.ok) {
-            return { success: false, message: data.error || "Failed to fetch reviews" };
-        }
-
-        return { success: true, data: data.data };
-    } catch (error: any) {
+        return { success: true, data: data.data || [] };
+    } catch (error) {
+        console.error("SERVICE_ERROR:", error);
         return { success: false, message: "Server connection error" };
     }
 };
