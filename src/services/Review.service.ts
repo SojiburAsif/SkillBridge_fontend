@@ -13,24 +13,24 @@ const BASE_URL = env.NEXT_PUBLIC_API_URL;
 export const createReview = async (reviewData: any) => {
     try {
         const cookieStore = await cookies();
-        const sessionToken = cookieStore.get("better-auth.session_token")?.value;
-
-        if (!sessionToken) {
-            return { success: false, message: "Session expired. Please login again." };
-        }
+        // Better-auth এর পুরো কুকি স্ট্রিংটি পাঠিয়ে দেওয়া সবচেয়ে নিরাপদ
+        const allCookies = cookieStore.toString();
 
         const res = await fetch(`${BASE_URL}/api/reviews`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${sessionToken}`,
+                // Bearer টোকেনের বদলে সরাসরি Cookie হেডার পাস করুন
+                "Cookie": allCookies,
             },
             body: JSON.stringify(reviewData),
             cache: "no-store",
         });
 
         const data = await res.json();
-        if (!res.ok) return { success: false, message: data.message || "Failed to post review." };
+
+        // ব্যাকএন্ড যদি success: false পাঠায়
+        if (!res.ok) return { success: false, message: data.error || data.message || "Failed" };
 
         revalidatePath("/student-dashboard/MyBookings");
         return { success: true, data: data.data };
