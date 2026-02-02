@@ -7,20 +7,17 @@ import { cookies } from "next/headers";
 
 const BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-/**
- * ✅ 1. Create a Review (POST)
- */
+
 export const createReview = async (reviewData: any) => {
     try {
         const cookieStore = await cookies();
-        // Better-auth এর পুরো কুকি স্ট্রিংটি পাঠিয়ে দেওয়া সবচেয়ে নিরাপদ
+       
         const allCookies = cookieStore.toString();
 
         const res = await fetch(`${BASE_URL}/api/reviews`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // Bearer টোকেনের বদলে সরাসরি Cookie হেডার পাস করুন
                 "Cookie": allCookies,
             },
             body: JSON.stringify(reviewData),
