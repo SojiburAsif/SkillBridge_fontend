@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Router ইম্পোর্ট করুন
 import { ModeToggle } from "@/components/layout/ModeToggle";
 import { authClient } from "@/lib/auth-client";
 
@@ -69,11 +70,20 @@ const Navbar = ({
   },
   className,
 }: NavbarProps) => {
+  const router = useRouter(); // Router হুক কল করুন
   const isLoggedIn = Boolean(session?.user);
 
   const handalLogout = async () => {
-    await authClient.signOut()
-  }
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          // লগআউট সফল হলে পেজ রিফ্রেশ হবে এবং হোমপেজে নিয়ে যাবে
+          router.push("/"); 
+          router.refresh(); 
+        },
+      },
+    });
+  };
 
   return (
     <header
@@ -126,9 +136,14 @@ const Navbar = ({
                 <span className="text-sm font-bold truncate max-w-[120px]">
                   {session?.user?.name ?? "User"}
                 </span>
-                <Link href="/logout" className="text-slate-400 hover:text-red-500 transition-colors ml-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={handalLogout} 
+                  className="text-slate-400 hover:text-red-500 transition-colors ml-2 h-8 w-8"
+                >
                   <LogOut size={16} />
-                </Link>
+                </Button>
               </div>
             ) : (
               <div className="flex items-center gap-3">
@@ -197,7 +212,7 @@ const Navbar = ({
                         </div>
                         <span className="font-bold">{session?.user?.name}</span>
                       </div>
-                      <Button onClick={handalLogout} asChild variant="destructive" className="w-full rounded-xl font-bold">
+                      <Button onClick={handalLogout} variant="destructive" className="w-full rounded-xl font-bold">
                         Logout
                       </Button>
                     </div>
