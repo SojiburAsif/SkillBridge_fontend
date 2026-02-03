@@ -18,7 +18,6 @@ export interface TutorQueryParams {
 
 // services/TutorProfile.service.ts
 
-
 export const AuthService = {
   getMyProfile: async () => {
     try {
