@@ -1,6 +1,5 @@
 import { env } from "@/env";
 import { Tutor } from "@/types/Tutor.type";
-import { cookies } from "next/headers";
 
 const API_URL = env.NEXT_PUBLIC_API_URL;
 
@@ -9,7 +8,7 @@ interface TutorApiResponse {
 }
 
 export interface TutorQueryParams {
-  id?: string;          
+  id?: string;          // single tutor fetch
   search?: string;
   categoryId?: string;
   rating?: number;
@@ -18,35 +17,25 @@ export interface TutorQueryParams {
 
 
 // services/TutorProfile.service.ts
+
+
 export const AuthService = {
   getMyProfile: async () => {
     try {
-      
-      const cookieStore = await cookies();
-      const sessionToken = cookieStore.get("better-auth.session_token")?.value;
-
-      if (!sessionToken) {
-        console.warn("No session token found in cookies");
-        return null;
-      }
-
-  
       const res = await fetch(`${API_URL}/api/my/profile`, {
-        method: "GET",
-        headers: {
-     
-          "Authorization": `Bearer ${sessionToken}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
         cache: "no-store",
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Profile Fetch Failed:", errorText);
-        return null;
-      }
+      if (!res.ok) return null;
 
+      /**
+       * expected response:
+       * {
+       *   success: true,
+       *   data: { tutor profile }
+       * }
+       */
       return await res.json();
     } catch (err) {
       console.error("getMyProfile error:", err);
@@ -54,6 +43,7 @@ export const AuthService = {
     }
   },
 };
+
 
 export const TutorService = {
   // multiple tutors with filters
