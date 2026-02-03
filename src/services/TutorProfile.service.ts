@@ -22,20 +22,21 @@ export interface TutorQueryParams {
 export const AuthService = {
   getMyProfile: async () => {
     try {
+     
       const res = await fetch(`${API_URL}/api/my/profile`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+         
+        },
         credentials: "include",
         cache: "no-store",
       });
 
-      if (!res.ok) return null;
+      if (!res.ok) {
+        return null;
+      }
 
-      /**
-       * expected response:
-       * {
-       *   success: true,
-       *   data: { tutor profile }
-       * }
-       */
       return await res.json();
     } catch (err) {
       console.error("getMyProfile error:", err);
