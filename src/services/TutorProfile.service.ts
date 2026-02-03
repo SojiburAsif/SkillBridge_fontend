@@ -28,13 +28,7 @@ export const AuthService = {
 
       if (!res.ok) return null;
 
-      /**
-       * expected response:
-       * {
-       *   success: true,
-       *   data: { tutor profile }
-       * }
-       */
+    
       return await res.json();
     } catch (err) {
       console.error("getMyProfile error:", err);
