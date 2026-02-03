@@ -1,5 +1,4 @@
 import { env } from "@/env";
-import { authClient } from "@/lib/auth-client";
 import { Tutor } from "@/types/Tutor.type";
 
 const API_URL = env.NEXT_PUBLIC_API_URL;
@@ -19,28 +18,31 @@ export interface TutorQueryParams {
 
 // services/TutorProfile.service.ts
 
+
 export const AuthService = {
   getMyProfile: async () => {
     try {
-      // Better Auth এর নিজস্ব $fetch ব্যবহার করুন
-      // এটি অটোমেটিক credentials এবং headers যোগ করে দেয়
-      const res = await authClient.$fetch("/api/my/profile", {
-        method: "GET",
+      const res = await fetch(`${API_URL}/api/my/profile`, {
+        credentials: "include",
+        cache: "no-store",
       });
 
-      return res;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (err.status === 401) {
-        console.error("Unauthorized: Please login again.");
-      }
+      if (!res.ok) return null;
+
+      /**
+       * expected response:
+       * {
+       *   success: true,
+       *   data: { tutor profile }
+       * }
+       */
+      return await res.json();
+    } catch (err) {
       console.error("getMyProfile error:", err);
       return null;
     }
   },
 };
-
-
 
 
 export const TutorService = {
