@@ -10,3 +10,9 @@ export interface RegisterForm {
   confirmPassword: string;
   role: UserRole;
 }
+export interface CustomUser {
+  id: string;
+  email: string;
+  name: string;
+  status?: "ACTIVE" | "BAND" | "INACTIVE"; 
+}

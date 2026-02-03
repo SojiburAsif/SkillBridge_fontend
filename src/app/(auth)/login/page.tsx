@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { CustomUser } from "@/types/user";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +27,7 @@ export default function LoginForm() {
       password: "",
     },
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Logging in");
+      const toastId = toast.loading("Logging in...");
 
       try {
         const { data, error } = await authClient.signIn.email(value);
@@ -36,14 +37,30 @@ export default function LoginForm() {
           return;
         }
 
-        toast.success("User Logged in Successfully", { id: toastId });
+        const user = data?.user as CustomUser;
 
-        // ✅ redirect to home page
+        if (user?.status === "BAND" || user?.status === "INACTIVE") {
+       
+          await authClient.signOut();
+
+          const message = user.status === "BAND"
+            ? "Your account has been banned."
+            : "Your account is inactive.";
+
+          toast.error(message, { id: toastId });
+          return; 
+        }
+
+    
+        toast.success("User Logged in Successfully", { id: toastId });
         router.push("/");
+        router.refresh();
+
       } catch (err) {
-        toast.error("Something went wrong, please try again.", { id: toastId });
+        toast.error("Something went wrong", { id: toastId });
       }
-    },
+    }
+
   });
 
   return (
