@@ -26,16 +26,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAllCategories, Category } from "@/services/category.service";
 import { AuthService } from "@/services/TutorProfile.service";
 import { upsertTutorProfile } from "./CreateProfileForm";
-interface TutorProfile {
-  id: string;
-  bio: string;
-  experience: string;
-  price: number;
-  categoryId: string;
-}
+
 export function CreateProfileFormClient() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [profile, setProfile] = useState<TutorProfile | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -68,24 +62,17 @@ export function CreateProfileFormClient() {
         getAllCategories(),
         AuthService.getMyProfile(),
       ]);
-
-      setCategories(catData || []);
-
-     
-      const p = profileRes?.data || profileRes;
-
-      if (p && (p.id || p.bio)) { 
+      setCategories(catData);
+      if (profileRes?.data) {
+        const p = profileRes.data;
         setProfile(p);
-
-        form.setFieldValue("bio", p.bio || "");
-        form.setFieldValue("experience", p.experience || "");
-        form.setFieldValue("price", Number(p.price) || 0);
-        form.setFieldValue("categoryId", p.categoryId || "");
-      } else {
-        setProfile(null);
+        form.setFieldValue("bio", p.bio);
+        form.setFieldValue("experience", p.experience);
+        form.setFieldValue("price", Number(p.price));
+        form.setFieldValue("categoryId", p.categoryId);
       }
     } catch (err) {
-      console.error("Failed to load profile:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -102,7 +89,7 @@ export function CreateProfileFormClient() {
     );
   }
 
-
+  // 🪪 VIEW MODE: PREMIUM PROFILE CARD
   if (profile && !isEditing) {
     return (
       <div className="max-w-xl mx-auto mt-10 p-1">
@@ -197,8 +184,8 @@ export function CreateProfileFormClient() {
                       type="button"
                       onClick={() => field.handleChange(cat.id ?? "")}
                       className={`p-4 rounded-2xl text-xs font-bold transition-all border text-left flex justify-between items-center ${field.state.value === cat.id
-                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
-                        : "bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:border-blue-300"
+                          ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
+                          : "bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:border-blue-300"
                         }`}
                     >
                       {cat.name}

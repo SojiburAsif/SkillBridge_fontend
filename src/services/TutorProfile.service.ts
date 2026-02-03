@@ -9,7 +9,7 @@ interface TutorApiResponse {
 }
 
 export interface TutorQueryParams {
-  id?: string;          // single tutor fetch
+  id?: string;          
   search?: string;
   categoryId?: string;
   rating?: number;
@@ -18,12 +18,10 @@ export interface TutorQueryParams {
 
 
 // services/TutorProfile.service.ts
-
-
 export const AuthService = {
   getMyProfile: async () => {
     try {
-  
+      
       const cookieStore = await cookies();
       const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
@@ -32,9 +30,11 @@ export const AuthService = {
         return null;
       }
 
+  
       const res = await fetch(`${API_URL}/api/my/profile`, {
         method: "GET",
         headers: {
+     
           "Authorization": `Bearer ${sessionToken}`,
           "Content-Type": "application/json",
         },
