@@ -22,6 +22,7 @@ export async function upsertTutorProfile(
     headers: {
       "Content-Type": "application/json",
       "Cookie": allCookies,
+      "x-forwarded-host": "skill-bridge-fontend-five.vercel.app"
     },
     body: JSON.stringify({
       ...rawData,
