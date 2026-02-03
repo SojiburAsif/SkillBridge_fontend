@@ -1,9 +1,10 @@
 "use client";
 
 import { ManageSlots } from '@/components/modules/Tutor/TutorSlotsManager';
-import { AuthService } from '@/services/TutorProfile.service';
+
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { getMyProfile } from '@/services/TutorProfile.service';
 
 export default function ManageSlotsPage() {
     const [tutorId, setTutorId] = useState<string | null>(null);
@@ -12,7 +13,7 @@ export default function ManageSlotsPage() {
     useEffect(() => {
         const getProfile = async () => {
             try {
-                const res = await AuthService.getMyProfile();
+                const res = await getMyProfile();
                 if (res?.data?.id) {
                     setTutorId(res.data.id);
                 }
@@ -45,7 +46,7 @@ export default function ManageSlotsPage() {
 
     return (
         <div className="p-4">
-            {/* এখন tutorId সফলভাবে পাঠানো হচ্ছে */}
+         
             <ManageSlots tutorId={tutorId} />
         </div>
     );

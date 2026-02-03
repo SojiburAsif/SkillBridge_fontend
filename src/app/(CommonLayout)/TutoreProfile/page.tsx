@@ -2,10 +2,11 @@
 
 import React, { JSX, useEffect, useState } from "react";
 import TutorCard from "@/components/modules/Tutor/TutoreCard";
-import { TutorService } from "@/services/TutorProfile.service";
+// import { TutorService } from "@/services/TutorProfile.service";
 
 import { Search, RefreshCw, SlidersHorizontal, Star, DollarSign, Layers } from "lucide-react";
 import { Tutor, } from "@/types";
+import { getCategories, getTutorProfiles } from "@/services/TutorProfile.service";
 
 type Category = { id: string; name: string };
 
@@ -25,12 +26,12 @@ export default function TutorProfilePageClient(): JSX.Element {
       setLoading(true);
       try {
         const [catsRes, tutsRes] = await Promise.all([
-          TutorService.getCategories(),
-          TutorService.getTutorProfile()
+          getCategories(),
+          getTutorProfiles()
         ]);
         setCategories(catsRes.data ?? []);
         setTutors(tutsRes.data?.data ?? []);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -43,7 +44,7 @@ export default function TutorProfilePageClient(): JSX.Element {
   const handleFilter = async () => {
     setLoading(true);
     try {
-      const res = await TutorService.getTutorProfile({
+      const res = await getTutorProfiles({
         search: search || undefined,
         categoryId: categoryId || undefined,
         rating: rating ? Number(rating) : undefined,
@@ -61,7 +62,7 @@ export default function TutorProfilePageClient(): JSX.Element {
     setPrice("");
     setRating("");
     setLoading(true);
-    const res = await TutorService.getTutorProfile();
+    const res = await getTutorProfiles();
     setTutors(res.data?.data ?? []);
     setLoading(false);
   };
@@ -69,7 +70,7 @@ export default function TutorProfilePageClient(): JSX.Element {
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-black transition-colors duration-500">
       <div className="max-w-7xl mx-auto p-6 md:p-12 mt-20">
-        
+
         {/* --- HEADER SECTION --- */}
         <div className="mb-12 space-y-2">
           <h1 className="text-3xl md:text-5xl font-black  dark:text-white">
@@ -171,10 +172,10 @@ export default function TutorProfilePageClient(): JSX.Element {
           </div>
         ) : tutors.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 space-y-4">
-             <div className="h-20 w-20 rounded-full bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-300">
-                <Search size={40} />
-             </div>
-             <p className="text-sm font-black uppercase tracking-[4px] text-slate-400">No instructors found</p>
+            <div className="h-20 w-20 rounded-full bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-300">
+              <Search size={40} />
+            </div>
+            <p className="text-sm font-black uppercase tracking-[4px] text-slate-400">No instructors found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

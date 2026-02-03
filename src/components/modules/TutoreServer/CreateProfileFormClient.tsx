@@ -24,8 +24,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import { getAllCategories, Category } from "@/services/category.service";
-import { AuthService } from "@/services/TutorProfile.service";
+
 import { upsertTutorProfile } from "./CreateProfileForm";
+import { getMyProfile } from "@/services/TutorProfile.service";
 
 export function CreateProfileFormClient() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -60,7 +61,7 @@ export function CreateProfileFormClient() {
       setLoading(true);
       const [catData, profileRes] = await Promise.all([
         getAllCategories(),
-        AuthService.getMyProfile(),
+        getMyProfile(),
       ]);
       setCategories(catData);
       if (profileRes?.data) {
@@ -184,8 +185,8 @@ export function CreateProfileFormClient() {
                       type="button"
                       onClick={() => field.handleChange(cat.id ?? "")}
                       className={`p-4 rounded-2xl text-xs font-bold transition-all border text-left flex justify-between items-center ${field.state.value === cat.id
-                          ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
-                          : "bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:border-blue-300"
+                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
+                        : "bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:border-blue-300"
                         }`}
                     >
                       {cat.name}

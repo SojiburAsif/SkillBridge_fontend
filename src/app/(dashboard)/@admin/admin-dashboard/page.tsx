@@ -3,7 +3,8 @@ import StatsDashboard from "@/components/modules/Admin/StatisticsPage";
 import { getAllUsers } from "@/services/Admin.service";
 import { getAllBookings } from "@/services/AdminBooking.service";
 import { getAllCategories } from "@/services/category.service";
-import { TutorService } from "@/services/TutorProfile.service";
+import { getAllTutorProfiles } from "@/services/TutorProfile.service";
+
 
 export default async function StatisticsPage() {
     // Parallel fetching for high performance
@@ -11,7 +12,7 @@ export default async function StatisticsPage() {
         getAllUsers(),
         getAllBookings(),
         getAllCategories(),
-        TutorService.getAllTutorProfiles()
+       getAllTutorProfiles()
     ]);
 
     // API structure handle kora (data field thakle sheta neya)

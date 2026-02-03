@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TutorService } from "@/services/TutorProfile.service";
+
 import TutorCard from "@/components/modules/Tutor/TutoreCard";
 import { Tutor } from "@/types";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { getTutorProfiles } from "@/services/TutorProfile.service";
 
 export default function TutoreHomeLayout() {
   const [tutors, setTutors] = useState<Tutor[]>([]);
@@ -14,7 +15,7 @@ export default function TutoreHomeLayout() {
   useEffect(() => {
     const fetchTopTutors = async () => {
       try {
-        const res = await TutorService.getTutorProfile();
+        const res = await getTutorProfiles();
         const topThree = (res.data?.data ?? []).slice(0, 3);
         setTutors(topThree);
       } catch (error) {
