@@ -22,13 +22,20 @@ export const AuthService = {
   getMyProfile: async () => {
     try {
       const res = await fetch(`${API_URL}/api/my/profile`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        
+        },
         credentials: "include",
         cache: "no-store",
       });
 
-      if (!res.ok) return null;
+      if (res.status === 401) {
+        console.warn("Unauthorized access - logic to redirect login can go here");
+        return null;
+      }
 
-    
       return await res.json();
     } catch (err) {
       console.error("getMyProfile error:", err);
@@ -36,7 +43,6 @@ export const AuthService = {
     }
   },
 };
-
 
 export const TutorService = {
   // multiple tutors with filters
