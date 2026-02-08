@@ -17,7 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Router ইম্পোর্ট করুন
+import { useRouter } from "next/navigation";
 import { ModeToggle } from "@/components/layout/ModeToggle";
 import { authClient } from "@/lib/auth-client";
 
@@ -56,7 +56,7 @@ interface NavbarProps {
 
 const Navbar = ({
   session,
-  logo = { url: "/", title: "SkillBridge " },
+  logo = { url: "/", title: "SkillBridge" },
   menu = [
     { title: "Home", url: "/" },
     { title: "Browse Tutors", url: "/TutoreProfile" },
@@ -70,16 +70,23 @@ const Navbar = ({
   },
   className,
 }: NavbarProps) => {
-  const router = useRouter(); // Router হুক কল করুন
+  const router = useRouter();
   const isLoggedIn = Boolean(session?.user);
+
+
+  const filteredMenu = menu.filter((item) => {
+    if (item.title === "Dashboard" && !isLoggedIn) {
+      return false;
+    }
+    return true;
+  });
 
   const handalLogout = async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          // লগআউট সফল হলে পেজ রিফ্রেশ হবে এবং হোমপেজে নিয়ে যাবে
-          router.push("/"); 
-          router.refresh(); 
+          router.push("/");
+          router.refresh();
         },
       },
     });
@@ -108,7 +115,7 @@ const Navbar = ({
             {/* Menu */}
             <NavigationMenu>
               <NavigationMenuList className="flex gap-1">
-                {menu.map((item) => (
+                {filteredMenu.map((item) => (
                   <NavigationMenuItem key={item.title}>
                     <NavigationMenuLink asChild>
                       <Link
@@ -136,10 +143,10 @@ const Navbar = ({
                 <span className="text-sm font-bold truncate max-w-[120px]">
                   {session?.user?.name ?? "User"}
                 </span>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
-                  onClick={handalLogout} 
+                  onClick={handalLogout}
                   className="text-slate-400 hover:text-red-500 transition-colors ml-2 h-8 w-8"
                 >
                   <LogOut size={16} />
@@ -184,7 +191,10 @@ const Navbar = ({
                 </Button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="bg-white dark:bg-black border-l dark:border-zinc-900">
+              <SheetContent
+                side="right"
+                className="bg-white dark:bg-black border-l dark:border-zinc-900"
+              >
                 <SheetHeader className="text-left">
                   <SheetTitle className="text-xl font-black tracking-tighter uppercase">
                     {logo.title}
@@ -192,7 +202,7 @@ const Navbar = ({
                 </SheetHeader>
 
                 <div className="flex flex-col gap-1 mt-8">
-                  {menu.map((item) => (
+                  {filteredMenu.map((item) => (
                     <Link
                       key={item.title}
                       href={item.url}
@@ -210,18 +220,31 @@ const Navbar = ({
                         <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white uppercase">
                           {session?.user?.name?.[0]}
                         </div>
-                        <span className="font-bold">{session?.user?.name}</span>
+                        <span className="font-bold">
+                          {session?.user?.name}
+                        </span>
                       </div>
-                      <Button onClick={handalLogout} variant="destructive" className="w-full rounded-xl font-bold">
+                      <Button
+                        onClick={handalLogout}
+                        variant="destructive"
+                        className="w-full rounded-xl font-bold"
+                      >
                         Logout
                       </Button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-3 mt-2">
-                      <Button asChild variant="outline" className="rounded-xl font-bold">
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="rounded-xl font-bold"
+                      >
                         <Link href={auth.login.url}>{auth.login.title}</Link>
                       </Button>
-                      <Button asChild className="bg-blue-600 rounded-xl font-bold">
+                      <Button
+                        asChild
+                        className="bg-blue-600 rounded-xl font-bold"
+                      >
                         <Link href={auth.signup.url}>{auth.signup.title}</Link>
                       </Button>
                     </div>
