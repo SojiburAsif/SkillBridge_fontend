@@ -80,7 +80,7 @@ export async function getAllStudentProfiles(): Promise<StudentProfile[]> {
     const cookieStore = await cookies();
 
     try {
-        const res = await fetch(`${env.API_URL}/api/admin/students`, {
+        const res = await fetch(`${env.API_URL}/api/admin/student/Allprofile`, {
             headers: {
                 Cookie: cookieStore.toString(),
             },
