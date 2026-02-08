@@ -46,12 +46,12 @@ export const adminRoutes: Route[] = [
     items: [
       { 
         title: "Student Profiles", 
-        url: "/admin-dashboard/students",
+        url: "/admin-dashboard/AllStudentProfile",
         icon: GraduationCap 
       },
       { 
         title: "Tutor Profiles", 
-        url: "/admin-dashboard/tutors", 
+        url: "/admin-dashboard/AllTutorProfile", 
         icon: Briefcase 
       },
     ],
