@@ -15,6 +15,7 @@ import {
     AtSign,
     Send,
     ArrowUp,
+    Globe,
 } from "lucide-react";
 
 // Type-safe floating variants
@@ -25,7 +26,8 @@ const floatingVariants = {
         transition: {
             duration: 5 + i,
             repeat: Infinity,
-            ease: [0.42, 0, 0.58, 1] as [number, number, number, number], // Type-safe cubic-bezier
+            repeatType: "reverse" as const,
+            ease: [0.42, 0, 0.58, 1] as [number, number, number, number],
         },
     }),
 };
@@ -46,7 +48,7 @@ const FooterPage = () => {
                     custom={1}
                     variants={floatingVariants}
                     animate="animate"
-                    className="absolute top-10 left-[5%] text-blue-400 dark:text-blue-500 opacity-70 dark:opacity-80"
+                    className="absolute top-10 left-[5%] text-blue-400 dark:text-blue-500 opacity-40"
                 >
                     <GraduationCap size={50} strokeWidth={1.5} />
                 </motion.div>
@@ -55,7 +57,7 @@ const FooterPage = () => {
                     custom={2}
                     variants={floatingVariants}
                     animate="animate"
-                    className="absolute top-40 right-[10%] text-orange-500 dark:text-orange-600 opacity-70 dark:opacity-80"
+                    className="absolute top-40 right-[10%] text-orange-500 dark:text-orange-600 opacity-40"
                 >
                     <BookOpen size={40} strokeWidth={1.5} />
                 </motion.div>
@@ -64,7 +66,7 @@ const FooterPage = () => {
                     custom={3}
                     variants={floatingVariants}
                     animate="animate"
-                    className="absolute bottom-20 left-[15%] text-emerald-500 dark:text-emerald-600 opacity-70 dark:opacity-80"
+                    className="absolute bottom-20 left-[15%] text-emerald-500 dark:text-emerald-600 opacity-40"
                 >
                     <Pencil size={35} strokeWidth={1.5} />
                 </motion.div>
@@ -73,7 +75,7 @@ const FooterPage = () => {
                     custom={4}
                     variants={floatingVariants}
                     animate="animate"
-                    className="absolute top-1/2 right-[5%] text-purple-500 dark:text-purple-600 opacity-70 dark:opacity-80"
+                    className="absolute top-1/2 right-[5%] text-purple-500 dark:text-purple-600 opacity-40"
                 >
                     <AtSign size={45} strokeWidth={1.5} />
                 </motion.div>
@@ -92,7 +94,7 @@ const FooterPage = () => {
                             </h2>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            Empowering learners worldwide with expert-led courses and a supportive community.
+                            Empowering learners worldwide with expert-led courses and a supportive community to bridge the gap between skills and success.
                         </p>
                         <div className="flex gap-3">
                             {[Facebook, Twitter, Instagram, Linkedin].map((Icon, index) => (
@@ -108,13 +110,13 @@ const FooterPage = () => {
                         </div>
                     </div>
 
-                    {/* Column 2: Navigation */}
+                    {/* Column 2: Quick Links */}
                     <div>
                         <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-7 uppercase tracking-widest">
-                            Navigation
+                            Quick Links
                         </h4>
                         <ul className="space-y-4">
-                            {["About us", "Courses", "Instructor", "FAQs", "Blogs"].map((item) => (
+                            {["About us", "All Courses", "Instructors", "Help Center", "Blogs"].map((item) => (
                                 <li key={item}>
                                     <a
                                         href="#"
@@ -128,27 +130,36 @@ const FooterPage = () => {
                         </ul>
                     </div>
 
-                    {/* Column 3: Contact */}
+                    {/* Column 3: Contact Details */}
                     <div>
                         <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-7 uppercase tracking-widest">
                             Contact Us
                         </h4>
                         <div className="space-y-6">
-                            <div className="flex gap-4">
-                                <div className="text-blue-600 dark:text-blue-500">
+                            <div className="flex gap-4 group">
+                                <div className="text-blue-600 dark:text-blue-500 group-hover:scale-110 transition-transform">
                                     <Phone size={20} />
                                 </div>
                                 <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                                    <p>(207) 555-0119</p>
-                                    <p>(704) 555-0127</p>
+                                    <p className="hover:text-blue-600 cursor-pointer transition-colors">+880 1840587095</p>
+                                    <p className="text-xs opacity-70">Mon-Fri, 9am - 6pm</p>
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="text-blue-600 dark:text-blue-500">
+                            <div className="flex gap-4 group">
+                                <div className="text-blue-600 dark:text-blue-500 group-hover:scale-110 transition-transform">
                                     <Mail size={20} />
                                 </div>
-                                <div className="text-slate-500 dark:text-slate-400 text-sm font-medium italic">
-                                    <p>support@eduall.com</p>
+                                <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                    <p className="hover:text-blue-600 cursor-pointer transition-colors">asif81534@gmail.com</p>
+                                    <p className="text-xs opacity-70">Online Support 24/7</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-4 group">
+                                <div className="text-blue-600 dark:text-blue-500 group-hover:scale-110 transition-transform">
+                                    <Globe size={20} />
+                                </div>
+                                <div className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                    <p className="hover:text-blue-600 cursor-pointer transition-colors">www.skillbridge.com</p>
                                 </div>
                             </div>
                         </div>
@@ -159,17 +170,17 @@ const FooterPage = () => {
                         <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-7 uppercase tracking-widest">
                             Subscribe
                         </h4>
-                        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[30px] border border-slate-100 dark:border-slate-800">
+                        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[30px] border border-slate-100 dark:border-slate-800 shadow-inner">
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 font-medium">
-                                Get latest updates & offers.
+                                Join our community for latest updates.
                             </p>
                             <div className="relative">
                                 <input
                                     type="email"
                                     placeholder="Your Email"
-                                    className="w-full bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-full py-3 px-5 text-sm focus:ring-2 focus:ring-blue-600 outline-none dark:text-white"
+                                    className="w-full bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-full py-3 px-5 text-sm focus:ring-2 focus:ring-blue-600 outline-none dark:text-white transition-all"
                                 />
-                                <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-2.5 rounded-full hover:scale-105 transition-transform">
+                                <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 hover:scale-105 transition-all shadow-md active:scale-95">
                                     <Send size={16} />
                                 </button>
                             </div>
@@ -181,16 +192,12 @@ const FooterPage = () => {
                 <div className="pt-10 border-t border-slate-100 dark:border-slate-900 flex flex-col md:flex-row justify-between items-center gap-6 relative">
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                         © {currentYear}{" "}
-                        <span className="text-blue-600 dark:text-blue-500 font-bold">EduAll</span>. All Rights Reserved.
+                        <span className="text-blue-600 dark:text-blue-500 font-bold">SkillBridge</span>. All Rights Reserved.
                     </p>
 
                     <div className="flex gap-8 text-sm font-bold text-slate-400 dark:text-slate-600">
-                        <a href="#" className="hover:text-blue-600 transition-colors">
-                            Privacy
-                        </a>
-                        <a href="#" className="hover:text-blue-600 transition-colors">
-                            Terms
-                        </a>
+                        <a href="#" className="hover:text-blue-600 transition-colors uppercase tracking-widest">Privacy Policy</a>
+                        <a href="#" className="hover:text-blue-600 transition-colors uppercase tracking-widest">Terms</a>
                     </div>
 
                     {/* Back To Top Button */}
@@ -199,8 +206,9 @@ const FooterPage = () => {
                         whileTap={{ scale: 0.9 }}
                         onClick={scrollToTop}
                         className="md:absolute -top-6 right-0 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-xl shadow-blue-500/40 border-4 border-white dark:border-black z-20 group"
+                        title="Back to Top"
                     >
-                        <ArrowUp size={24} />
+                        <ArrowUp size={24} className="group-hover:animate-bounce" />
                     </motion.button>
                 </div>
             </div>
