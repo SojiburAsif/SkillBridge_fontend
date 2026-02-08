@@ -1,10 +1,18 @@
-import { BarChart3, Users, CalendarCheck, Layers, LucideIcon } from "lucide-react";
+import { 
+  BarChart3, 
+  Users, 
+  CalendarCheck, 
+  Layers, 
+  GraduationCap, 
+  Briefcase,    
+  LucideIcon 
+} from "lucide-react";
 
-// Route টাইপটিকে আইকন সহ ডিফাইন করে নেওয়া
+
 export interface RouteItem {
   title: string;
   url: string;
-  icon?: LucideIcon; // আইকন সাপোর্ট যোগ করা হলো
+  icon?: LucideIcon; 
 }
 
 export interface Route {
@@ -34,6 +42,21 @@ export const adminRoutes: Route[] = [
     ],
   },
   {
+    title: "Profiles",
+    items: [
+      { 
+        title: "Student Profiles", 
+        url: "/admin-dashboard/students",
+        icon: GraduationCap 
+      },
+      { 
+        title: "Tutor Profiles", 
+        url: "/admin-dashboard/tutors", 
+        icon: Briefcase 
+      },
+    ],
+  },
+  {
     title: "Bookings",
     items: [
       { 
@@ -53,4 +76,4 @@ export const adminRoutes: Route[] = [
       },
     ],
   },
-];
+]

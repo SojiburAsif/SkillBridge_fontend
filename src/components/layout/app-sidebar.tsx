@@ -144,7 +144,6 @@ export function AppSidebar({
           </div>
         </div>
 
-        {/* নিচের লগআউট সেকশন */}
         <div className="px-4 pb-8">
           <div className="pt-4 border-t border-slate-100 dark:border-zinc-900">
             <button

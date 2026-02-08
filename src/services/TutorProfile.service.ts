@@ -19,11 +19,7 @@ export interface TutorQueryParams {
   price?: number;
 }
 
-// --- Auth Related Individual Exports ---
 
-/**
- * বর্তমানে লগইন করা ইউজারের প্রোফাইল ফেচ করার জন্য
- */
 export const getMyProfile = async () => {
   try {
     const cookieStore = await cookies();
