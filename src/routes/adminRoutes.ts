@@ -3,8 +3,7 @@ import {
   Users, 
   CalendarCheck, 
   Layers, 
-  GraduationCap, 
-  Briefcase,    
+  GraduationCap,   
   LucideIcon 
 } from "lucide-react";
 
@@ -49,11 +48,11 @@ export const adminRoutes: Route[] = [
         url: "/admin-dashboard/AllStudentProfile",
         icon: GraduationCap 
       },
-      { 
-        title: "Tutor Profiles", 
-        url: "/admin-dashboard/AllTutorProfile", 
-        icon: Briefcase 
-      },
+      // { 
+      //   title: "Tutor Profiles", 
+      //   url: "/admin-dashboard/AllTutorProfile", 
+      //   icon: Briefcase 
+      // },
     ],
   },
   {
