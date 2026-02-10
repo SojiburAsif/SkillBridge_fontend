@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 SkillBridge - Modern Online Tutoring Marketplace
 
-## Getting Started
+**SkillBridge** হলো একটি প্রিমিয়াম অনলাইন টিউটরিং প্ল্যাটফর্ম যেখানে ছাত্রছাত্রীরা বিশেষজ্ঞ শিক্ষকদের খুঁজে পায় এবং শিক্ষকরা তাদের দক্ষতা শেয়ার করার মাধ্যমে একটি প্রফেশনাল প্রোফাইল তৈরি করতে পারেন। এটি একটি ফুল-স্ট্যাক প্রজেক্ট যা আধুনিক ওয়েব টেকনোলজির সমন্বয়ে তৈরি।
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌐 Live Demo & Deployment
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Resource | Link |
+| :--- | :--- |
+| **🌍 Frontend Live** | [View Live Site](https://skill-bridge-fontend-five.vercel.app/) |
+| **⚙️ Backend Live** | [API Documentation](https://skillbridgebackend.vercel.app/) |
+| **📺 Demo Video** | [Watch Preview on Google Drive](https://drive.google.com/file/d/1cRbOMZ-Rj8T1ulZkz6-A7K5TUkn-8adO/view?usp=sharing) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Key Features
 
-## Learn More
+- **💎 Premium Tutor Cards:** টিউটরদের জন্য আকর্ষণীয় এবং গ্লাস-মর্ফিজম ডিজাইনের প্রোফাইল কার্ড।
+- **🔍 Advanced Search & Filter:** ক্যাটাগরি, মূল্য এবং রেটিং অনুযায়ী স্মার্ট সার্চিং সিস্টেম।
+- **🔐 Secure Authentication:** Better Auth ব্যবহার করে সেশন-বেসড সিকিউর লগইন সিস্টেম।
+- **📊 Tutor Dashboard:** টিউটরদের জন্য প্রোফাইল আপডেট, সেশন ম্যানেজমেন্ট এবং বায়ো এডিট করার ক্ষমতা।
+- **⚡ Server Actions:** Next.js Server Actions ব্যবহার করে দ্রুত ডাটা মিউটেশন।
+- **📱 Fully Responsive:** মোবাইল, ট্যাবলেট এবং ডেস্কটপের জন্য ১০০% রেসপন্সিভ ইউজার ইন্টারফেস।
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Frontend:
+- **Framework:** Next.js 15 (App Router)
+- **State Management:** TanStack Form & TanStack Table
+- **Styling:** Tailwind CSS & Shadcn/UI
+- **Icons:** Lucide React
+- **Toast:** Sonner
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Backend:
+- **Framework:** Node.js & Express.js
+- **Database:** PostgreSQL (via Prisma ORM)
+- **Auth:** Better Auth
+- **Validation:** Zod
+
+---
+
+## 🔐 Admin Credentials (Test Access)
+
+প্ল্যাটফর্মের অ্যাডমিন ফিচারগুলো এক্সপ্লোর করার জন্য নিচের ডিটেইলস ব্যবহার করুন:
+
+> **Email:** `admin@gmail.com`  
+> **Password:** `Pa$$w0rd!`
+
+---
+
+## 🚀 Installation & Local Setup
+
+১. **প্রজেক্টটি ক্লোন করুন:**
+   ```bash
+   git clone [https://github.com/SojiburAsif/SkillBridge_fontend.git](https://github.com/SojiburAsif/SkillBridge_fontend.git)
