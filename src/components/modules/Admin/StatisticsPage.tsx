@@ -1,37 +1,13 @@
 "use client";
 
-import { TrendingUp, Users, GraduationCap, CalendarCheck, LayoutGrid } from "lucide-react";
-import { PolarGrid, RadialBar, RadialBarChart, CartesianGrid, Line, LineChart, XAxis, Radar, RadarChart, PolarAngleAxis } from "recharts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, Users, GraduationCap, CalendarCheck, LayoutGrid, UserCheck, UserX, Ban, BookOpen, Clock3 } from "lucide-react";
+import { RadialBar, RadialBarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-
-// --- Fix: Types updated to match your Services exactly ---
-interface User {
-    id: string;
-    role?: string; // string allow kora holo jate assignable hoy
-    createdAt?: string;
-}
-
-interface Booking {
-    id: string;
-    createdAt?: string; 
-}
-
-interface Category {
-    id?: string; // undefined allow kora holo match korar jonno
-    name: string;
-}
-
-interface Tutor {
-    id: string;
-    categoryId?: string;
-}
+import type { DashboardAnalytics } from "@/services/Admin.service";
 
 interface StatsDashboardProps {
-    users: User[];
-    bookings: Booking[];
-    categories: Category[];
-    tutors: Tutor[];
+    analytics: DashboardAnalytics;
 }
 
 const chartConfig = {
@@ -39,46 +15,39 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function StatsDashboard({ 
-    users = [], 
-    bookings = [], 
-    categories = [], 
-    tutors = [] 
+    analytics
 }: StatsDashboardProps) {
 
-    // --- Chart Data Logic Fix ---
-
-    // 1. Line Chart: Booking Count Logic
-    const bookingChartData = () => {
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-        return monthNames.map((month, index) => {
-            const count = bookings.filter((b) => {
-                if (!b.createdAt) return false;
-                const date = new Date(b.createdAt);
-                // Validation: date valid ki na check kora
-                return !isNaN(date.getTime()) && date.getMonth() === index;
-            }).length;
-            return { month, count };
-        });
-    };
-
-    // 2. Radial Chart: User vs Tutor Split
-    const userSplitData = [
-        { name: "Users", count: users.length, fill: "hsl(var(--chart-1))" },
-        { name: "Tutors", count: tutors.length, fill: "hsl(var(--chart-2))" },
+    const bookingChartData = [
+        { month: "Total", count: analytics.bookings.total },
+        { month: "Completed", count: analytics.bookings.completed },
+        { month: "Cancelled", count: analytics.bookings.cancelled },
     ];
 
-    // 3. Radar Chart: Tutors per Category
-    const categoryRadarData = categories.slice(0, 6).map((cat) => ({
-        category: cat.name,
-        // Category ID undefined hote pare tai safety check
-        count: tutors.filter(t => t.categoryId === cat.id && cat.id !== undefined).length
-    }));
+    const userSplitData = [
+        { name: "Students", count: analytics.users.byRole.students, fill: "hsl(var(--chart-1))" },
+        { name: "Tutors", count: analytics.users.byRole.tutors, fill: "hsl(var(--chart-2))" },
+        { name: "Admins", count: analytics.users.byRole.admins, fill: "hsl(var(--chart-3))" },
+    ];
 
     const statCards = [
-        { label: "Total Users", value: users.length, icon: Users, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-500/10" },
-        { label: "Total Tutors", value: tutors.length, icon: GraduationCap, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-500/10" },
-        { label: "Total Bookings", value: bookings.length, icon: CalendarCheck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
-        { label: "Categories", value: categories.length, icon: LayoutGrid, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-500/10" },
+        { label: "Total Users", value: analytics.users.total, icon: Users, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-500/10" },
+        { label: "Students", value: analytics.users.byRole.students, icon: GraduationCap, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-500/10" },
+        { label: "Tutors", value: analytics.users.byRole.tutors, icon: UserCheck, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-500/10" },
+        { label: "Admins", value: analytics.users.byRole.admins, icon: Ban, color: "text-fuchsia-600", bg: "bg-fuchsia-50 dark:bg-fuchsia-500/10" },
+        { label: "Active Users", value: analytics.users.byStatus.active, icon: UserCheck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
+        { label: "Inactive Users", value: analytics.users.byStatus.inactive, icon: UserX, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-500/10" },
+        { label: "Banned Users", value: analytics.users.byStatus.band, icon: Ban, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-500/10" },
+        { label: "Student Profiles", value: analytics.profiles.students, icon: BookOpen, color: "text-cyan-600", bg: "bg-cyan-50 dark:bg-cyan-500/10" },
+        { label: "Tutor Profiles", value: analytics.profiles.tutors, icon: Users, color: "text-sky-600", bg: "bg-sky-50 dark:bg-sky-500/10" },
+        { label: "Total Bookings", value: analytics.bookings.total, icon: CalendarCheck, color: "text-green-600", bg: "bg-green-50 dark:bg-green-500/10" },
+        { label: "Completed", value: analytics.bookings.completed, icon: CalendarCheck, color: "text-lime-600", bg: "bg-lime-50 dark:bg-lime-500/10" },
+        { label: "Cancelled", value: analytics.bookings.cancelled, icon: UserX, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-500/10" },
+        { label: "Reviews", value: analytics.reviews.total, icon: TrendingUp, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-500/10" },
+        { label: "Categories", value: analytics.categories.total, icon: LayoutGrid, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-500/10" },
+        { label: "Total Slots", value: analytics.tutorSlots.total, icon: Clock3, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-500/10" },
+        { label: "Booked Slots", value: analytics.tutorSlots.booked, icon: Clock3, color: "text-blue-700", bg: "bg-blue-100 dark:bg-blue-600/20" },
+        { label: "Available Slots", value: analytics.tutorSlots.available, icon: Clock3, color: "text-emerald-700", bg: "bg-emerald-100 dark:bg-emerald-600/20" },
     ];
 
     return (
@@ -104,11 +73,11 @@ export default function StatsDashboard({
                 {/* Line Chart */}
                 <Card className="lg:col-span-8 border-none shadow-xl rounded-[32px] dark:bg-zinc-950">
                     <CardHeader>
-                        <CardTitle className="text-xl font-black uppercase">Booking Activity</CardTitle>
+                        <CardTitle className="text-xl font-black uppercase">Booking Status</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                            <LineChart data={bookingChartData()} margin={{ left: 10, right: 10 }}>
+                            <LineChart data={bookingChartData} margin={{ left: 10, right: 10 }}>
                                 <CartesianGrid vertical={false} opacity={0.1} />
                                 <XAxis dataKey="month" tickLine={false} axisLine={false} />
                                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -127,7 +96,7 @@ export default function StatsDashboard({
                 {/* Radial Chart */}
                 <Card className="lg:col-span-4 border-none shadow-xl rounded-[32px] dark:bg-zinc-950 flex flex-col">
                     <CardHeader className="items-center pb-0">
-                        <CardTitle className="text-xl font-black uppercase">User Split</CardTitle>
+                        <CardTitle className="text-xl font-black uppercase">User Role Split</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 pb-0">
                         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
