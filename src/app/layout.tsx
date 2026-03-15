@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Fredoka, Geist_Mono } from "next/font/google";
+import { Fredoka } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "sonner";
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  weight: ["500"],
   subsets: ["latin"],
 });
 
@@ -32,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fredoka.variable} ${geistMono.variable} antialiased`}
+        className={`${fredoka.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
