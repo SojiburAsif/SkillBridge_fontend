@@ -36,8 +36,11 @@ export type DashboardAnalytics = {
     };
     bookings: {
         total: number;
+        confirmed: number;
         completed: number;
         cancelled: number;
+        attended: number;
+        rescheduled: number;
     };
     reviews: {
         total: number;
@@ -72,8 +75,11 @@ const emptyDashboardAnalytics: DashboardAnalytics = {
     },
     bookings: {
         total: 0,
+        confirmed: 0,
         completed: 0,
         cancelled: 0,
+        attended: 0,
+        rescheduled: 0,
     },
     reviews: {
         total: 0,
@@ -111,8 +117,11 @@ function normalizeDashboardAnalytics(input: unknown): DashboardAnalytics {
         },
         bookings: {
             total: data.bookings?.total ?? 0,
+            confirmed: data.bookings?.confirmed ?? 0,
             completed: data.bookings?.completed ?? 0,
             cancelled: data.bookings?.cancelled ?? 0,
+            attended: data.bookings?.attended ?? 0,
+            rescheduled: data.bookings?.rescheduled ?? 0,
         },
         reviews: {
             total: data.reviews?.total ?? 0,

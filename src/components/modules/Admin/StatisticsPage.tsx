@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, Users, GraduationCap, CalendarCheck, LayoutGrid, UserCheck, UserX, Ban, BookOpen, Clock3 } from "lucide-react";
+import { TrendingUp, Users, GraduationCap, CalendarCheck, LayoutGrid, UserCheck, UserX, Ban, BookOpen, Clock3, ClipboardCheck, RotateCcw } from "lucide-react";
 import { RadialBar, RadialBarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -19,10 +19,22 @@ export default function StatsDashboard({
 }: StatsDashboardProps) {
 
     const bookingChartData = [
-        { month: "Total", count: analytics.bookings.total },
+        { month: "Confirmed", count: analytics.bookings.confirmed },
         { month: "Completed", count: analytics.bookings.completed },
         { month: "Cancelled", count: analytics.bookings.cancelled },
+        { month: "Attended", count: analytics.bookings.attended },
+        { month: "Rescheduled", count: analytics.bookings.rescheduled },
     ];
+
+    const bookingDetails = [
+        { label: "Confirmed", value: analytics.bookings.confirmed },
+        { label: "Completed", value: analytics.bookings.completed },
+        { label: "Cancelled", value: analytics.bookings.cancelled },
+        { label: "Attended", value: analytics.bookings.attended },
+        { label: "Rescheduled", value: analytics.bookings.rescheduled },
+    ];
+
+    const safeTotalBookings = Math.max(analytics.bookings.total, 1);
 
     const userSplitData = [
         { name: "Students", count: analytics.users.byRole.students, fill: "hsl(var(--chart-1))" },
@@ -41,8 +53,11 @@ export default function StatsDashboard({
         { label: "Student Profiles", value: analytics.profiles.students, icon: BookOpen, color: "text-cyan-600", bg: "bg-cyan-50 dark:bg-cyan-500/10" },
         { label: "Tutor Profiles", value: analytics.profiles.tutors, icon: Users, color: "text-sky-600", bg: "bg-sky-50 dark:bg-sky-500/10" },
         { label: "Total Bookings", value: analytics.bookings.total, icon: CalendarCheck, color: "text-green-600", bg: "bg-green-50 dark:bg-green-500/10" },
+        { label: "Confirmed", value: analytics.bookings.confirmed, icon: ClipboardCheck, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-500/10" },
         { label: "Completed", value: analytics.bookings.completed, icon: CalendarCheck, color: "text-lime-600", bg: "bg-lime-50 dark:bg-lime-500/10" },
         { label: "Cancelled", value: analytics.bookings.cancelled, icon: UserX, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-500/10" },
+        { label: "Attended", value: analytics.bookings.attended, icon: UserCheck, color: "text-emerald-700", bg: "bg-emerald-100 dark:bg-emerald-600/20" },
+        { label: "Rescheduled", value: analytics.bookings.rescheduled, icon: RotateCcw, color: "text-indigo-700", bg: "bg-indigo-100 dark:bg-indigo-600/20" },
         { label: "Reviews", value: analytics.reviews.total, icon: TrendingUp, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-500/10" },
         { label: "Categories", value: analytics.categories.total, icon: LayoutGrid, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-500/10" },
         { label: "Total Slots", value: analytics.tutorSlots.total, icon: Clock3, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-500/10" },
@@ -109,6 +124,25 @@ export default function StatsDashboard({
                     <CardFooter className="flex-col gap-2 text-sm font-bold text-blue-600">
                         <div className="flex items-center gap-2">LIVE SYNC ACTIVE <TrendingUp className="h-4 w-4" /></div>
                     </CardFooter>
+                </Card>
+
+                <Card className="lg:col-span-12 border-none shadow-xl rounded-[32px] dark:bg-zinc-950">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-black uppercase">Booking Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        {bookingDetails.map((item) => {
+                            const percent = Math.round((item.value / safeTotalBookings) * 100);
+
+                            return (
+                                <div key={item.label} className="rounded-2xl border border-slate-200 dark:border-zinc-800 p-4">
+                                    <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">{item.label}</p>
+                                    <p className="text-2xl font-black mt-2 text-slate-900 dark:text-white">{item.value}</p>
+                                    <p className="text-xs font-bold mt-1 text-blue-600">{percent}% of total</p>
+                                </div>
+                            );
+                        })}
+                    </CardContent>
                 </Card>
             </div>
         </div>
