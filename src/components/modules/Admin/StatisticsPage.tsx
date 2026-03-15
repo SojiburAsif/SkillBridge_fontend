@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { TrendingUp, Users, GraduationCap, CalendarCheck, LayoutGrid, UserCheck, UserX, Ban, BookOpen, Clock3, ClipboardCheck, RotateCcw } from "lucide-react";
 import { RadialBar, RadialBarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,23 +19,42 @@ export default function StatsDashboard({
     analytics
 }: StatsDashboardProps) {
 
-    const bookingChartData = [
-        { month: "Confirmed", count: analytics.bookings.confirmed },
-        { month: "Completed", count: analytics.bookings.completed },
-        { month: "Cancelled", count: analytics.bookings.cancelled },
-        { month: "Attended", count: analytics.bookings.attended },
-        { month: "Rescheduled", count: analytics.bookings.rescheduled },
-    ];
+    const [activeBookingIndex, setActiveBookingIndex] = useState(0);
 
-    const bookingDetails = [
-        { label: "Confirmed", value: analytics.bookings.confirmed },
-        { label: "Completed", value: analytics.bookings.completed },
-        { label: "Cancelled", value: analytics.bookings.cancelled },
-        { label: "Attended", value: analytics.bookings.attended },
-        { label: "Rescheduled", value: analytics.bookings.rescheduled },
-    ];
+    const bookingChartData = useMemo(
+        () => [
+            { month: "Confirmed", count: analytics.bookings.confirmed, color: "#2563eb" },
+            { month: "Completed", count: analytics.bookings.completed, color: "#65a30d" },
+            { month: "Cancelled", count: analytics.bookings.cancelled, color: "#ea580c" },
+            { month: "Attended", count: analytics.bookings.attended, color: "#0f766e" },
+            { month: "Rescheduled", count: analytics.bookings.rescheduled, color: "#4f46e5" },
+        ],
+        [
+            analytics.bookings.confirmed,
+            analytics.bookings.completed,
+            analytics.bookings.cancelled,
+            analytics.bookings.attended,
+            analytics.bookings.rescheduled,
+        ]
+    );
+
+    const bookingDetails = bookingChartData.map((item) => ({
+        label: item.month,
+        value: item.count,
+        color: item.color,
+    }));
 
     const safeTotalBookings = Math.max(analytics.bookings.total, 1);
+
+    useEffect(() => {
+        if (bookingChartData.length === 0) return;
+
+        const interval = window.setInterval(() => {
+            setActiveBookingIndex((prev) => (prev + 1) % bookingChartData.length);
+        }, 1800);
+
+        return () => window.clearInterval(interval);
+    }, [bookingChartData.length]);
 
     const userSplitData = [
         { name: "Students", count: analytics.users.byRole.students, fill: "hsl(var(--chart-1))" },
@@ -65,14 +85,16 @@ export default function StatsDashboard({
         { label: "Available Slots", value: analytics.tutorSlots.available, icon: Clock3, color: "text-emerald-700", bg: "bg-emerald-100 dark:bg-emerald-600/20" },
     ];
 
+    const activeBooking = bookingChartData[activeBookingIndex];
+
     return (
         <div className="space-y-8 w-full animate-in fade-in duration-700">
             {/* Stat Cards Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {statCards.map((stat, i) => (
-                    <Card key={i} className="border-none shadow-xl rounded-[28px] dark:bg-zinc-950">
+                    <Card key={i} className="border-none shadow-xl rounded-[28px] dark:bg-zinc-950 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 animate-in slide-in-from-bottom-2" style={{ animationDelay: `${i * 35}ms` }}>
                         <CardContent className="p-6 flex items-center gap-5">
-                            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
+                            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} ring-1 ring-black/5 dark:ring-white/5`}>
                                 <stat.icon size={28} />
                             </div>
                             <div>
@@ -88,7 +110,12 @@ export default function StatsDashboard({
                 {/* Line Chart */}
                 <Card className="lg:col-span-8 border-none shadow-xl rounded-[32px] dark:bg-zinc-950">
                     <CardHeader>
-                        <CardTitle className="text-xl font-black uppercase">Booking Status</CardTitle>
+                        <CardTitle className="text-xl font-black uppercase flex items-center justify-between">
+                            <span>Booking Status</span>
+                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 animate-pulse">
+                                Auto Focus: {activeBooking?.month ?? "Live"}
+                            </span>
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -101,10 +128,41 @@ export default function StatsDashboard({
                                     type="monotone" 
                                     stroke="hsl(var(--chart-1))" 
                                     strokeWidth={4} 
-                                    dot={{ r: 4, fill: "hsl(var(--chart-1))" }} 
+                                    isAnimationActive
+                                    animationDuration={1200}
+                                    animationEasing="ease-in-out"
+                                    activeDot={{ r: 8, fill: "hsl(var(--chart-1))", strokeWidth: 0 }}
+                                    dot={(props) => {
+                                        const isActive = props.index === activeBookingIndex;
+
+                                        return (
+                                            <circle
+                                                cx={props.cx}
+                                                cy={props.cy}
+                                                r={isActive ? 7 : 4}
+                                                fill={isActive ? "#2563eb" : "hsl(var(--chart-1))"}
+                                                className={isActive ? "animate-pulse" : ""}
+                                            />
+                                        );
+                                    }}
                                 />
                             </LineChart>
                         </ChartContainer>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {bookingChartData.map((item, index) => (
+                                <button
+                                    key={item.month}
+                                    type="button"
+                                    onMouseEnter={() => setActiveBookingIndex(index)}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeBookingIndex === index
+                                            ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                                            : "bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300"
+                                        }`}
+                                >
+                                    {item.month}: {item.count}
+                                </button>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -115,8 +173,8 @@ export default function StatsDashboard({
                     </CardHeader>
                     <CardContent className="flex-1 pb-0">
                         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
-                            <RadialBarChart data={userSplitData} innerRadius={30} outerRadius={110}>
-                                <RadialBar dataKey="count" background cornerRadius={10} />
+                            <RadialBarChart data={userSplitData} innerRadius={30} outerRadius={110} startAngle={90} endAngle={-270}>
+                                <RadialBar dataKey="count" background cornerRadius={10} isAnimationActive animationDuration={1600} />
                                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                             </RadialBarChart>
                         </ChartContainer>
@@ -131,14 +189,21 @@ export default function StatsDashboard({
                         <CardTitle className="text-xl font-black uppercase">Booking Details</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        {bookingDetails.map((item) => {
+                        {bookingDetails.map((item, index) => {
                             const percent = Math.round((item.value / safeTotalBookings) * 100);
+                            const isActive = activeBookingIndex === index;
 
                             return (
-                                <div key={item.label} className="rounded-2xl border border-slate-200 dark:border-zinc-800 p-4">
+                                <div
+                                    key={item.label}
+                                    className={`rounded-2xl border p-4 transition-all duration-300 ${isActive
+                                            ? "border-blue-500 bg-blue-50/80 dark:bg-blue-500/10 dark:border-blue-400 shadow-lg"
+                                            : "border-slate-200 dark:border-zinc-800"
+                                        }`}
+                                >
                                     <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">{item.label}</p>
                                     <p className="text-2xl font-black mt-2 text-slate-900 dark:text-white">{item.value}</p>
-                                    <p className="text-xs font-bold mt-1 text-blue-600">{percent}% of total</p>
+                                    <p className="text-xs font-bold mt-1" style={{ color: item.color }}>{percent}% of total</p>
                                 </div>
                             );
                         })}

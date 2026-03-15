@@ -42,7 +42,7 @@ export default async function DashboardLayout({
               <Breadcrumb className="hidden sm:block">
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard" className="text-[11px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-widest transition-colors">
+                    <BreadcrumbLink href="/" className="text-[11px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-widest transition-colors">
                       Home
                     </BreadcrumbLink>
                   </BreadcrumbItem>
